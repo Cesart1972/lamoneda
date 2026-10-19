@@ -61,7 +61,7 @@ btnCopiarLink.addEventListener("click", async () => {
       setTimeout(() => {
 
           const mensaje = encodeURIComponent(
-              "¡Mirá esta aplicación! " + urlPWA
+              textoCliente(CLIENTE.mensajes.compartir, { link: urlPWA })
           );
 
           window.open(

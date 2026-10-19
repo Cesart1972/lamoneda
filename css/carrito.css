@@ -1,0 +1,275 @@
+/*====================================================
+  CARRITO.CSS
+  Pantalla "Tu pedido" y aviso de compra mínima
+====================================================*/
+
+/* Renglón rojo "Compra mínima $30.000" */
+.avisoMinimo{
+    margin:0;
+    padding:3px 10px;
+    background:#e11d48;
+    color:#ffffff;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.02em;
+    text-align:center;
+}
+
+.avisoMinimo[hidden]{
+    display:none;
+}
+
+body.pedidoAbierto{
+    overflow:hidden;
+}
+
+/* Fondo oscuro + hoja que sube desde abajo */
+.pedidoVelo{
+    position:fixed;
+    inset:0;
+    z-index:var(--z-modal, 2000);
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    background:rgba(20,20,20,0);
+    transition:background-color .7s ease;
+}
+
+.pedidoVelo.visible{
+    background:rgba(20,20,20,.5);
+}
+
+.pedidoVelo[hidden]{
+    display:none;
+}
+
+.pedidoHoja{
+    display:flex;
+    flex-direction:column;
+    width:100%;
+    max-width:560px;
+    max-height:88vh;
+    border-radius:20px 20px 0 0;
+    background:#ffffff;
+    box-shadow:0 -10px 30px rgba(0,0,0,.2);
+    opacity:0;
+    transform:translateY(100%);
+    /* Subida lenta y suave: arranca despacio y frena de a poco */
+    transition:transform .75s cubic-bezier(.33,1,.68,1), opacity .6s ease;
+}
+
+/* Sube desde el borde inferior */
+.pedidoVelo.visible .pedidoHoja{
+    opacity:1;
+    transform:none;
+}
+
+.pedidoHoja:focus{
+    outline:none;
+}
+
+
+.pedidoEncabezado{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 16px 10px;
+    border-bottom:1px solid var(--line, #d9e0e6);
+}
+
+.pedidoEncabezado h2{
+    margin:0;
+    font-size:1.15rem;
+    color:var(--text, #1f2933);
+}
+
+.pedidoCerrar{
+    width:34px;
+    height:34px;
+    border:0;
+    border-radius:999px;
+    background:#f1f3f2;
+    font-size:1rem;
+    cursor:pointer;
+}
+
+.pedidoLista{
+    flex:1;
+    margin:0;
+    padding:4px 16px;
+    overflow-y:auto;
+    list-style:none;
+}
+
+/* Fila: nombre y detalle | subtotal y Quitar / controles abajo */
+.pedidoFila{
+    overflow:hidden;
+    transition:height .28s ease, opacity .22s ease, padding .28s ease, border-color .28s ease;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:
+        "info derecha"
+        "controles derecha";
+    gap:6px 12px;
+    padding:10px 0;
+    border-bottom:1px solid #eef1f0;
+}
+
+/* Fila que se quita: se achica y se desvanece */
+.pedidoFila.pedidoFilaSaliendo{
+    height:0 !important;
+    padding-top:0;
+    padding-bottom:0;
+    border-bottom-color:transparent;
+    opacity:0;
+    pointer-events:none;
+}
+
+.pedidoInfo{
+    grid-area:info;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    min-width:0;
+}
+
+.pedidoNombre{
+    font-size:.92rem;
+    font-weight:700;
+    line-height:1.25;
+    color:var(--text, #1f2933);
+}
+
+.pedidoDetalle{
+    font-size:.78rem;
+    color:var(--muted, #617182);
+    font-variant-numeric:tabular-nums;
+}
+
+.pedidoControles{
+    grid-area:controles;
+    display:inline-flex;
+    align-items:center;
+    justify-self:start;
+    border:1px solid var(--line, #d9e0e6);
+    border-radius:999px;
+    background:#f6f8f7;
+}
+
+.pedidoMenos,
+.pedidoMas{
+    width:34px;
+    height:30px;
+    border:0;
+    background:none;
+    color:var(--accent-strong, #0b5f59);
+    font-size:1.15rem;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.pedidoCantidad{
+    min-width:56px;
+    text-align:center;
+    font-size:.85rem;
+    font-weight:800;
+}
+
+.pedidoDerecha{
+    grid-area:derecha;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:6px;
+}
+
+.pedidoSubtotal{
+    font-size:.95rem;
+    font-weight:800;
+    color:var(--text, #1f2933);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+}
+
+.pedidoQuitar{
+    padding:4px 0;
+    border:0;
+    background:none;
+    color:#be123c;
+    font:inherit;
+    font-size:.78rem;
+    font-weight:700;
+    text-decoration:underline;
+    text-underline-offset:2px;
+    cursor:pointer;
+}
+
+.pedidoPie{
+    display:grid;
+    gap:8px;
+    padding:12px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+    border-top:1px solid var(--line, #d9e0e6);
+}
+
+.pedidoTotal{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    font-size:1rem;
+    font-weight:700;
+}
+
+.pedidoTotalMonto{
+    font-size:1.4rem;
+    font-variant-numeric:tabular-nums;
+}
+
+/* Botón Enviar + renglón rojo "Compra mínima": un solo bloque */
+.pedidoEnviarBloque{
+    display:flex;
+    flex-direction:column;
+}
+
+.pedidoEnviar{
+    width:100%;
+    padding:13px;
+    border:0;
+    border-radius:14px;
+    background:#25D366;
+    color:#ffffff;
+    font:inherit;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+}
+
+.pedidoEnviar:disabled{
+    background:#c9cfcc;
+    color:#6b7470;
+    cursor:not-allowed;
+}
+
+.pedidoEnviarBloque.conAviso .pedidoEnviar{
+    border-radius:14px 14px 0 0;
+}
+
+.pedidoEnviarBloque .avisoMinimo{
+    padding:5px 10px;
+    border-radius:0 0 14px 14px;
+}
+
+.pedidoMenos:focus-visible,
+.pedidoMas:focus-visible,
+.pedidoQuitar:focus-visible,
+.pedidoEnviar:focus-visible,
+.pedidoCerrar:focus-visible{
+    outline:2px solid var(--accent-strong, #0b5f59);
+    outline-offset:2px;
+}
+
+@media (prefers-reduced-motion:reduce){
+    .pedidoHoja,
+    .pedidoVelo{transition:none}
+    .pedidoFila{transition:none}
+}

@@ -1,0 +1,35 @@
+FÓRMULA DE EXCEL PARA GENERAR products-data.js
+===============================================
+
+Columnas (fila 1 = títulos, los datos empiezan en la fila 2):
+
+  A  Id                       (único y nunca se reutiliza)
+  B  supplier
+  C  brand
+  D  category
+  E  name                     (en un separador: el título de la sección)
+  F  keywords                 (en un poster: lo que se busca al tocarlo)
+  G  price                    (precio por unidad)
+  H  step                     (de a cuántas unidades se vende; vacío = 1)
+  I  PresentacionVenta        (unidad, bulto, caja...; vacío = unidad)       [antes medida1]
+  J  PrecioPorVolumen         (precio por unidad comprando por volumen;
+                               vacío = mismo precio)                         [antes precio2]
+  K  PresentacionPorVolumen   (caja, bulto, pallet, pack...)                 [antes medida2]
+  L  UnidadesPorVolumen       (unidades que trae esa presentación)           [antes unidades2]
+  M  MinimoPorVolumen         (mínimo de presentaciones; vacío = 1)          [antes minimo2]
+  N  inStock                  (VERDADERO / FALSO)
+  O  image                    (nombre del archivo, sin "imagenes/")
+  P  ribbon
+  Q  destacado                (VERDADERO / FALSO)
+  R  Atributo1
+  S  Atributo2
+  T  TipoMuestra              (producto, poster o separador; vacío = producto)
+
+La fórmula va en la columna U (fila 2) y se arrastra hacia abajo.
+Después se copian todos los resultados y se pegan dentro de los
+corchetes [ ] de products-data.js.
+
+La PWA también entiende los nombres viejos (medida1, precio2, etc.),
+así que no hace falta cambiar todo de golpe.
+
+="  {Id: """&A2&""", supplier: """&SUSTITUIR(B2;"""";"\""")&""", brand: """&SUSTITUIR(C2;"""";"\""")&""", category: """&SUSTITUIR(D2;"""";"\""")&""", name: """&SUSTITUIR(E2;"""";"\""")&""", keywords: """&SUSTITUIR(F2;"""";"\""")&""", price: "&SI(G2="";"null";SUSTITUIR(G2;",";"."))&", step: "&SI(H2="";1;H2)&", PresentacionVenta: """&SUSTITUIR(I2;"""";"\""")&""", PrecioPorVolumen: "&SI(J2="";"null";SUSTITUIR(J2;",";"."))&", PresentacionPorVolumen: """&SUSTITUIR(K2;"""";"\""")&""", UnidadesPorVolumen: "&SI(L2="";"null";SUSTITUIR(L2;",";"."))&", MinimoPorVolumen: "&SI(M2="";"null";SUSTITUIR(M2;",";"."))&", inStock: "&SI(N2=VERDADERO;"true";"false")&", image: "&SI(O2="";"""""";"""imagenes/"&O2&"""")&", ribbon: """&SUSTITUIR(P2;"""";"\""")&""", destacado: "&SI(Q2=VERDADERO;"true";"false")&", Atributo1: """&SUSTITUIR(R2;"""";"\""")&""", Atributo2: """&SUSTITUIR(S2;"""";"\""")&""", TipoMuestra: """&SUSTITUIR(T2;"""";"\""")&"""},"

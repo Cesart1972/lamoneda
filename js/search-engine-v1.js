@@ -1198,4 +1198,7 @@ function searchVoiceQuery(text, searchIndex) {
     );
 }
 
-window.searchIndex = buildSearchIndex(products);
+// Solo productos que se pueden comprar (sin posters ni separadores, ver js/datos.js)
+window.searchIndex = buildSearchIndex(
+    typeof productosVendibles !== "undefined" ? productosVendibles : products
+);

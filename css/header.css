@@ -113,34 +113,52 @@ SEARCH HEADER COMPACTO
 BOTON COMPARTIR
 ====================================================*/
 
-.btn-compartir{
-    width:42px;
-    height:42px;
+.headerAcciones{
+    display:flex;
+    align-items:center;
+    gap:4px;
+}
+
+/* Botón con ícono y texto debajo (Info, Compartir) */
+.btn-header{
+    min-width:48px;
+    padding:2px 4px;
 
     border:none;
+    border-radius:10px;
     background:transparent;
 
     display:flex;
+    flex-direction:column;
     align-items:center;
     justify-content:center;
-
-    cursor:pointer;
-
-    padding:0;
-}
-
-.btn-compartir svg{
-    width:26px;
-    height:26px;
-
-    fill:none;
-
-    stroke:currentColor;
-    stroke-width:2;
-    stroke-linecap:round;
-    stroke-linejoin:round;
+    gap:2px;
 
     color:#ffffff;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+}
+
+.btn-header:active{
+    background:rgba(255,255,255,.18);
+}
+
+.btn-header:focus-visible{
+    outline:2px solid #ffffff;
+    outline-offset:1px;
+}
+
+.btn-header svg{
+    width:24px;
+    height:24px;
+    fill:currentColor;
+}
+
+.btn-header span{
+    font-size:10px;
+    font-weight:700;
+    line-height:1;
+    letter-spacing:.02em;
 }
 
 
@@ -208,7 +226,7 @@ MODAL COMPARTIR
 
     font-size:26px;
 
-    color:#FFA500;
+    color:var(--color-principal);
 }
 
 
