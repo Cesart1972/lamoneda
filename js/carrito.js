@@ -36,7 +36,8 @@
 
   function faltaParaElMinimo() {
     if (!COMPRA_MINIMA || enviarSinMinimo) return 0;
-    return Math.max(0, COMPRA_MINIMA - totalDelPedido());
+    // Con el mismo total redondeado que ve el cliente
+    return Math.max(0, COMPRA_MINIMA - roundToHundreds(totalDelPedido()));
   }
 
   // app.js la llama cada vez que cambia el carrito (updateCheckoutUI)
