@@ -626,7 +626,8 @@ function buildVoiceDictionary() {
 
   products.forEach(product => {
 
-    if (!product) return;
+    // Posters y separadores no son productos (ver js/datos.js)
+    if (!product || !esProducto(product)) return;
 
     const fields = [
 
@@ -648,16 +649,6 @@ function buildVoiceDictionary() {
       {
         value: product.keywords,
         type: "keywords"
-      },
-
-      {
-        value: product.comestibles,
-        type: "comestibles"
-      },
-
-      {
-        value: product.limpieza,
-        type: "limpieza"
       }
 
     ];
@@ -1341,7 +1332,7 @@ if (SpeechRecognition) {
     new SpeechRecognition();
 
 
-  recognition.lang = "es-AR";
+  recognition.lang = CLIENTE.empresa.idioma;
 
   recognition.continuous = false;
 

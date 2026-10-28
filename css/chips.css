@@ -1,0 +1,468 @@
+/* =========================================================
+   CHIPS: filtros rápidos debajo del buscador
+   e íconos de chips en las tarjetas
+   ========================================================= */
+
+.chipsBar{
+    position:relative;
+    margin:4px 0 2px;
+}
+
+.chipsBar[hidden]{
+    display:none;
+}
+
+/* Fila con scroll horizontal, sin barra visible */
+.chipsLista{
+    display:flex;
+    gap:2px;
+    overflow-x:auto;
+    padding:4px 2px 4px;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+}
+
+.chipsLista::-webkit-scrollbar{
+    display:none;
+}
+
+/* Desvanecido de los bordes (como los chips de YouTube): los propios chips
+   se vuelven transparentes hacia el borde con una máscara, sin taparlos con
+   color. Cada lado se desvanece solo si hay chips escondidos de ese lado:
+   al principio solo la derecha, en el medio los dos, al final solo la izquierda.
+   --borde-izq y --borde-der los va ajustando js/chips.js al deslizar. */
+@property --borde-izq { syntax:"<length>"; inherits:false; initial-value:0px; }
+@property --borde-der { syntax:"<length>"; inherits:false; initial-value:0px; }
+
+.chipsLista{
+    --borde-izq:0px;
+    --borde-der:0px;
+    -webkit-mask-image:linear-gradient(90deg, transparent, #000 var(--borde-izq), #000 calc(100% - var(--borde-der)), transparent);
+    mask-image:linear-gradient(90deg, transparent, #000 var(--borde-izq), #000 calc(100% - var(--borde-der)), transparent);
+}
+
+/* Flechas redondas a los costados (solo con mouse) */
+.chipsFlecha{
+    position:absolute;
+    top:50%;
+    z-index:2;
+    display:none;
+    place-items:center;
+    width:34px;
+    height:34px;
+    padding:0;
+    border:0;
+    border-radius:50%;
+    background:#ffffff;
+    box-shadow:0 2px 8px rgba(0,0,0,.18);
+    color:#1f2937;
+    cursor:pointer;
+    transform:translateY(-50%);
+}
+
+.chipsFlecha svg{
+    width:20px;
+    height:20px;
+    fill:none;
+    stroke:currentColor;
+    stroke-width:2.4;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+}
+
+.chipsFlecha-izquierda{ left:2px; }
+.chipsFlecha-derecha{ right:2px; }
+
+@media (hover:hover) and (pointer:fine){
+    .chipsBar.masALaIzquierda .chipsFlecha-izquierda,
+    .chipsBar.masALaDerecha .chipsFlecha-derecha{
+        display:grid;
+    }
+}
+
+/* Arrastrando con el mouse: sin "imán" ni selección de texto */
+.chipsLista.arrastrando{
+    scroll-snap-type:none;
+    cursor:grabbing;
+    user-select:none;
+}
+
+.chipsLista.arrastrando .chip{
+    pointer-events:none;
+}
+
+/* Chip estilo "accesos" (como Mercado Libre): ícono 3D grande arriba y el
+   nombre chiquito abajo, sin pastilla. Marcado: círculo de color detrás del
+   ícono, nombre en negrita y una rayita debajo. */
+.chip{
+    position:relative;
+    flex:none;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:3px;
+    width:74px;
+    padding:4px 2px 6px;
+    border:0;
+    border-radius:14px;
+    background:none;
+    box-shadow:none;
+    color:#374151;
+    font:inherit;
+    font-family:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size:.74rem;
+    font-weight:500;
+    line-height:1.15;
+    text-align:center;
+    white-space:normal;
+    cursor:pointer;
+    scroll-snap-align:start;
+    -webkit-tap-highlight-color:transparent;
+    transition:transform .15s ease, color .2s ease;
+}
+
+/* Círculo detrás del ícono (se ve al marcar el chip) */
+.chip::before{
+    content:"";
+    position:absolute;
+    top:2px;
+    left:50%;
+    width:60px;
+    height:60px;
+    margin-left:-30px;
+    border-radius:50%;
+    background:transparent;
+    transition:background-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+/* Oculto (ej. Favoritos sin favoritos): sin esto, el display:flex
+   del chip le gana al atributo hidden y el chip queda a la vista. */
+.chip[hidden]{
+    display:none;
+}
+
+.chip:active{
+    transform:scale(.94);
+}
+
+.chipIcono{
+    position:relative;
+    display:grid;
+    place-items:center;
+    width:56px;
+    height:56px;
+    font-size:2.3rem;
+    line-height:1;
+}
+
+img.chipIcono{
+    width:56px;
+    height:56px;
+    margin:0;
+    object-fit:contain;
+    filter:drop-shadow(0 3px 3px rgba(0,0,0,.18));
+    transition:transform .2s ease;
+}
+
+.chipTexto{
+    position:relative;
+    display:block;
+    max-width:100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.chip.activo{
+    color:#111827;
+    font-weight:700;
+}
+
+.chip.activo::before{
+    background:color-mix(in srgb, var(--color-principal, #FFA500) 30%, #ffffff);
+    box-shadow:0 0 0 2px var(--color-principal, #FFA500), 0 6px 14px -6px color-mix(in srgb, var(--color-principal, #FFA500) 70%, transparent);
+}
+
+.chip.activo img.chipIcono{
+    transform:scale(1.06);
+}
+
+/* Rayita debajo del nombre del chip marcado */
+.chip.activo .chipTexto::after{
+    content:"";
+    display:block;
+    width:22px;
+    height:3px;
+    margin:3px auto 0;
+    border-radius:3px;
+    background:var(--color-principal, #FFA500);
+}
+
+.chip:focus-visible{
+    outline:3px solid var(--color-secundario, #7F00FF);
+    outline-offset:2px;
+}
+
+
+/* ---------------- ÍCONOS EN LA TARJETA ---------------- */
+/* Arriba a la derecha (la cinta está arriba a la izquierda) */
+
+.iconosChips{
+    position:absolute;
+    top:8px;
+    right:8px;
+    z-index:3;
+    display:flex;
+    gap:4px;
+    pointer-events:none;
+}
+
+.iconoChip{
+    display:grid;
+    place-items:center;
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    background:#ffffff;
+    box-shadow:0 2px 6px rgba(0,0,0,.18);
+    font-size:1rem;
+    line-height:1;
+}
+
+.iconoChipMas{
+    background:var(--color-secundario, #7F00FF);
+    color:#ffffff;
+    font-family:"Fredoka", system-ui, sans-serif;
+    font-size:.8rem;
+    font-weight:700;
+}
+
+.productCard.is-featured .iconoChip{
+    width:36px;
+    height:36px;
+    font-size:1.2rem;
+}
+
+/* Ícono 3D (imagen): sin círculo blanco, con su propia sombra */
+img.iconoChip.iconoChipImagen{
+    width:38px;
+    height:38px;
+    border-radius:0;
+    background:none;
+    box-shadow:none;
+    object-fit:contain;
+    filter:drop-shadow(0 3px 4px rgba(0,0,0,.28));
+}
+
+.productCard.is-featured img.iconoChip.iconoChipImagen{
+    width:48px;
+    height:48px;
+}
+
+.iconosChips .iconoChipMas{
+    align-self:center;
+}
+
+
+/* ---------------- CHIP DENTRO DEL BUSCADOR ---------------- */
+
+/* Contenedor: a la derecha, antes de la X de borrar texto y del micrófono */
+.chipsEnBuscador{
+    position:absolute;
+    top:50%;
+    right:50px;
+    z-index:4;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    max-width:55%;
+    transform:translateY(-50%);
+}
+
+.chipsEnBuscador[hidden]{
+    display:none;
+}
+
+.chipEnBuscador{
+    position:relative;
+    flex:0 1 auto;
+    min-width:0;
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    padding:3px 12px 3px 5px;
+    border:0;
+    border-radius:999px;
+    background:var(--color-principal, #FFA500);
+    box-shadow:0 2px 6px rgba(255,165,0,.4);
+    color:#ffffff;
+    font-family:"Fredoka", system-ui, sans-serif;
+    font-size:.85rem;
+    font-weight:600;
+    cursor:pointer;
+    animation:chipEntrarBuscador .25s ease-out;
+}
+
+/* Varios chips: solo el ícono de cada uno */
+.chipsEnBuscador.soloIconos .chipEnBuscador{
+    flex:none;
+    padding:3px 7px;
+}
+
+.chipEnBuscadorIcono{
+    flex:none;
+    font-size:1rem;
+    line-height:1;
+}
+
+img.chipEnBuscadorIcono{
+    width:24px;
+    height:24px;
+    margin:-3px 0;
+    object-fit:contain;
+}
+
+.chipEnBuscadorTexto{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+/* La X va encima del chip, en la esquina: tocar el chip quita el filtro */
+.chipEnBuscadorQuitar{
+    position:absolute;
+    top:-7px;
+    right:-6px;
+    display:grid;
+    place-items:center;
+    width:18px;
+    height:18px;
+    border:2px solid #ffffff;
+    border-radius:50%;
+    background:#374151;
+    color:#ffffff;
+    font-size:.8rem;
+    font-weight:700;
+    line-height:1;
+}
+
+@keyframes chipEntrarBuscador{
+    from{opacity:0; transform:scale(.8)}
+    to{opacity:1; transform:scale(1)}
+}
+
+@media (prefers-reduced-motion:reduce){
+    .chip{transition:none}
+    .chipEnBuscador{animation:none}
+}
+
+
+/* ---------------- FAVORITOS ---------------- */
+
+/* Corazón en el borde entre la foto y los datos, a la derecha */
+.productInfo{
+    position:relative;
+}
+
+.botonFavorito{
+    position:absolute;
+    top:-22px;
+    right:8px;
+    z-index:3;
+    display:grid;
+    place-items:center;
+    width:42px;
+    height:42px;
+    padding:0;
+    border:0;
+    border-radius:50%;
+    background:#ffffff;
+    box-shadow:0 3px 10px rgba(0,0,0,.18);
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+}
+
+.botonFavorito img{
+    width:28px;
+    height:28px;
+    object-fit:contain;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.15));
+}
+
+.botonFavorito.latido{
+    animation:favoritoLatido .45s ease;
+}
+
+@keyframes favoritoLatido{
+    0%{transform:scale(1)}
+    35%{transform:scale(1.28)}
+    60%{transform:scale(.92)}
+    100%{transform:scale(1)}
+}
+
+.botonFavorito:focus-visible{
+    outline:3px solid var(--color-secundario, #7F00FF);
+    outline-offset:2px;
+}
+
+/* Aviso "Tenés N favoritos para agregar" */
+.avisoFavoritos{
+    position:fixed;
+    left:50%;
+    bottom:96px;
+    z-index:1500;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    width:max-content;
+    max-width:calc(100% - 32px);
+    padding:10px 10px 10px 12px;
+    border-radius:16px;
+    background:#ffffff;
+    box-shadow:0 10px 30px rgba(0,0,0,.22);
+    font-family:"Fredoka", system-ui, sans-serif;
+    font-size:.98rem;
+    font-weight:600;
+    color:#1f2937;
+    opacity:0;
+    transform:translate(-50%, 20px);
+    transition:opacity .35s ease, transform .45s cubic-bezier(.33,1,.68,1);
+}
+
+.avisoFavoritos.visible{
+    opacity:1;
+    transform:translate(-50%, 0);
+}
+
+.avisoFavoritosIcono{
+    width:30px;
+    height:30px;
+}
+
+.avisoFavoritosVer{
+    padding:7px 14px;
+    border:0;
+    border-radius:999px;
+    background:var(--color-principal, #FFA500);
+    color:#ffffff;
+    font:inherit;
+    cursor:pointer;
+}
+
+.avisoFavoritosCerrar{
+    width:28px;
+    height:28px;
+    border:0;
+    border-radius:50%;
+    background:#f1f5f9;
+    color:#4b5563;
+    font-size:1.1rem;
+    line-height:1;
+    cursor:pointer;
+}
+
+@media (prefers-reduced-motion:reduce){
+    .botonFavorito.latido{animation:none}
+    .avisoFavoritos{transition:none}
+}

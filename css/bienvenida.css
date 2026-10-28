@@ -1,0 +1,310 @@
+/*====================================================
+  BIENVENIDA.CSS
+  Modal de bienvenida (personaje + condiciones de venta)
+====================================================*/
+
+.bienvenidaVelo{
+    position:fixed;
+    inset:0;
+    z-index:var(--z-modal, 2000);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    padding:76px 14px 14px;
+    overflow-y:auto;
+
+    background:rgba(25,20,10,.5);
+}
+
+.bienvenidaVelo[hidden]{
+    display:none;
+}
+
+body.bienvenidaAbierta{
+    overflow:hidden;
+}
+
+.bienvenidaModal{
+    position:relative;
+    width:100%;
+    max-width:390px;
+    margin:auto 0;
+    padding:70px 16px 14px;
+
+    border-radius:28px;
+    background:#ffffff;
+    box-shadow:0 20px 50px rgba(0,0,0,.25);
+
+    text-align:center;
+    color:#1f2933;
+}
+
+.bienvenidaModal:focus{
+    outline:none;
+}
+
+.bienvenidaModal.sinMascota{
+    padding-top:22px;
+}
+
+.bienvenidaModal::before{
+    content:"";
+    position:absolute;
+    inset:0 0 auto 0;
+    height:120px;
+    border-radius:28px 28px 0 0;
+    background:radial-gradient(120% 100% at 50% 0%, #FFF6E5 0%, #ffffff 75%);
+}
+
+.bienvenidaMascota{
+    position:absolute;
+    left:50%;
+    top:-66px;
+    z-index:2;
+
+    width:132px;
+    height:132px;
+    object-fit:contain;
+    transform:translateX(-50%);
+
+    filter:drop-shadow(0 8px 12px rgba(0,0,0,.18));
+}
+
+.bienvenidaContenido{
+    position:relative;
+    z-index:1;
+}
+
+.bienvenidaSaludo{
+    margin:0;
+    font-family:"Fredoka", system-ui, sans-serif;
+    font-size:1.15rem;
+    font-weight:600;
+    color:#F28C00;
+}
+
+/* Mano 3D que saluda, al lado de "¡Hola!" */
+.bienvenidaSaludoMano{
+    width:1.9em;
+    height:1.9em;
+    margin:-.5em 0 -.45em .25em;
+    vertical-align:middle;
+    object-fit:contain;
+    transform-origin:70% 85%;
+    animation:bienvenidaManoSaludar 1.6s .6s ease-in-out 2;
+}
+
+@keyframes bienvenidaManoSaludar{
+    0%,100%{transform:rotate(0)}
+    20%{transform:rotate(-14deg)}
+    40%{transform:rotate(10deg)}
+    60%{transform:rotate(-10deg)}
+    80%{transform:rotate(6deg)}
+}
+
+.bienvenidaTitulo{
+    margin:0 0 4px;
+    font-family:"Fredoka", system-ui, sans-serif;
+    font-size:1.5rem;
+    font-weight:700;
+    line-height:1.1;
+    color:var(--color-secundario, #7F00FF);
+    text-wrap:balance;
+}
+
+.bienvenidaIntro{
+    margin:0 0 10px;
+    font-size:.86rem;
+    line-height:1.35;
+    color:#5d6b78;
+}
+
+.bienvenidaDudas{
+    display:grid;
+    gap:6px;
+    margin:0;
+    padding:0;
+    list-style:none;
+    text-align:left;
+}
+
+.bienvenidaDuda{
+    display:grid;
+    grid-template-columns:36px minmax(0,1fr);
+    align-items:center;
+    gap:10px;
+    padding:7px 10px;
+
+    border:1px solid #F0ECE3;
+    border-radius:16px;
+    background:#FAFAF7;
+}
+
+.bienvenidaIcono{
+    display:grid;
+    place-items:center;
+    width:36px;
+    height:36px;
+    border-radius:11px;
+    background:#FFF6E5;
+    font-size:1.15rem;
+}
+
+/* Ícono 3D: sin cuadradito de fondo, un poco más grande, con su sombra */
+.bienvenidaIcono.bienvenidaIcono3d{
+    width:42px;
+    height:42px;
+    background:none;
+}
+
+.bienvenidaIcono3d img{
+    width:42px;
+    height:42px;
+    object-fit:contain;
+    filter:drop-shadow(0 3px 3px rgba(0,0,0,.18));
+}
+
+.bienvenidaDuda b{
+    display:block;
+    font-size:.86rem;
+}
+
+.bienvenidaRespuesta{
+    display:block;
+    font-size:.8rem;
+    line-height:1.35;
+    color:#5d6b78;
+}
+
+.bienvenidaRespuesta strong{
+    color:#1f2933;
+}
+
+.bienvenidaAlias{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-top:4px;
+    padding:3px 4px 3px 9px;
+
+    border:1px dashed #E8C27A;
+    border-radius:999px;
+    background:#ffffff;
+
+    font-size:.8rem;
+    font-weight:700;
+}
+
+.bienvenidaAlias button{
+    padding:4px 9px;
+    border:0;
+    border-radius:999px;
+    background:var(--accent, #0f766e);
+    color:#ffffff;
+    font:inherit;
+    font-size:.72rem;
+    cursor:pointer;
+}
+
+.bienvenidaCierre{
+    margin:10px 4px;
+    font-size:.9rem;
+    font-weight:400;
+    line-height:1.4;
+    text-wrap:balance;
+}
+
+.bienvenidaBoton{
+    width:100%;
+    padding:12px;
+
+    border:0;
+    border-radius:999px;
+    background:linear-gradient(180deg, #FFB21F, #F28C00);
+    box-shadow:0 6px 0 #D97A00, 0 10px 18px rgba(242,140,0,.35);
+
+    font-family:"Fredoka", system-ui, sans-serif;
+    font-size:1.15rem;
+    font-weight:600;
+    color:#ffffff;
+    cursor:pointer;
+    transition:transform .1s, box-shadow .1s;
+}
+
+.bienvenidaBoton:active{
+    transform:translateY(4px);
+    box-shadow:0 2px 0 #D97A00, 0 4px 10px rgba(242,140,0,.3);
+}
+
+.bienvenidaBoton:focus-visible,
+.bienvenidaAlias button:focus-visible{
+    outline:2px solid var(--color-secundario, #7F00FF);
+    outline-offset:2px;
+}
+
+.bienvenidaNota{
+    margin:10px 0 0;
+    font-size:.72rem;
+    color:#5d6b78;
+}
+
+.bienvenidaToast{
+    position:fixed;
+    left:50%;
+    bottom:24px;
+    transform:translateX(-50%);
+    padding:8px 14px;
+    border-radius:999px;
+    background:#1f2933;
+    color:#ffffff;
+    font-size:.8rem;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s;
+}
+
+.bienvenidaToast.visible{
+    opacity:1;
+}
+
+/* Animaciones de entrada */
+.bienvenidaVelo.animar .bienvenidaModal{
+    animation:bienvenidaEntrar .5s cubic-bezier(.2,.9,.3,1.25) both;
+}
+
+.bienvenidaVelo.animar .bienvenidaMascota{
+    animation:bienvenidaSaludo 1.1s .35s ease-in-out both;
+}
+
+.bienvenidaVelo.animar .bienvenidaDuda{
+    animation:bienvenidaAparecer .4s ease both;
+}
+
+@keyframes bienvenidaEntrar{
+    from{opacity:0;transform:translateY(40px) scale(.92)}
+    to{opacity:1;transform:none}
+}
+
+@keyframes bienvenidaAparecer{
+    from{opacity:0;transform:translateY(8px)}
+    to{opacity:1;transform:none}
+}
+
+@keyframes bienvenidaSaludo{
+    0%{transform:translateX(-50%) scale(.4) rotate(-12deg);opacity:0}
+    45%{transform:translateX(-50%) scale(1.08) rotate(6deg);opacity:1}
+    65%{transform:translateX(-50%) scale(.97) rotate(-4deg)}
+    82%{transform:translateX(-50%) scale(1.02) rotate(2deg)}
+    100%{transform:translateX(-50%) scale(1) rotate(0)}
+}
+
+@media (prefers-reduced-motion:reduce){
+    .bienvenidaSaludoMano{animation:none}
+    .bienvenidaVelo.animar .bienvenidaModal,
+    .bienvenidaVelo.animar .bienvenidaMascota,
+    .bienvenidaVelo.animar .bienvenidaDuda{
+        animation:none;
+    }
+}

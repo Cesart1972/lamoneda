@@ -1,0 +1,17 @@
+FÓRMULA EXCEL → products-data.js  (corregida 27-10-2026, probada con la Hoja2 de Productos_La_Moneda)
+
+Columnas de la Hoja2:
+A web (FechaOferta) · B Id · C proveedor · D brand · E category · F name · G keywords · H inStock
+I price · J PrecioOferta · K step · L PresentacionVenta · M PrecioPorVolumen · N PresentacionPorVolumen
+O UnidadesPorVolumen · P MinimoPorVolumen · Q image · R ribbon · S destacado · T Atributo1 · U Atributo2 · V TipoMuestra
+
+La fórmula va en W2 y se arrastra hacia abajo.
+Después se copia toda la columna W y se pega en products-data.js entre "const products = [" y "];".
+
+- web: fecha (28/10/2026) o vacía. Sale primera, como FechaOferta: "2026-10-28".
+- PrecioOferta: número o vacío (vacío sale como null).
+- step vacío sale como 1, como en la fórmula anterior.
+- image le agrega "imagenes/" adelante, como en la fórmula anterior.
+- inStock y destacado: VERDADERO, SI o 1 = true. Cualquier otra cosa (o vacío) = false.
+
+="  {FechaOferta: "&""""&SI(ESPACIOS(A2&"")="";"";AÑO(SI(ESNUMERO(A2);A2;FECHANUMERO(A2&"")))&"-"&DERECHA("0"&MES(SI(ESNUMERO(A2);A2;FECHANUMERO(A2&"")));2)&"-"&DERECHA("0"&DIA(SI(ESNUMERO(A2);A2;FECHANUMERO(A2&"")));2))&""""&", Id: "&""""&SUSTITUIR(SUSTITUIR(B2&"";"\";"\\");"""";"\""")&""""&", supplier: "&""""&SUSTITUIR(SUSTITUIR(C2&"";"\";"\\");"""";"\""")&""""&", brand: "&""""&SUSTITUIR(SUSTITUIR(D2&"";"\";"\\");"""";"\""")&""""&", category: "&""""&SUSTITUIR(SUSTITUIR(E2&"";"\";"\\");"""";"\""")&""""&", name: "&""""&SUSTITUIR(SUSTITUIR(F2&"";"\";"\\");"""";"\""")&""""&", keywords: "&""""&SUSTITUIR(SUSTITUIR(G2&"";"\";"\\");"""";"\""")&""""&", inStock: "&SI(O(H2=VERDADERO();H2=1;MAYUSC(ESPACIOS(H2&""))="SI";MAYUSC(ESPACIOS(H2&""))="SÍ";MAYUSC(ESPACIOS(H2&""))="X";MAYUSC(ESPACIOS(H2&""))="TRUE";MAYUSC(ESPACIOS(H2&""))="VERDADERO");"true";"false")&", price: "&SI(ESPACIOS(I2&"")="";"null";SUSTITUIR(I2&"";",";"."))&", PrecioOferta: "&SI(ESPACIOS(J2&"")="";"null";SUSTITUIR(J2&"";",";"."))&", step: "&SI(ESPACIOS(K2&"")="";"1";SUSTITUIR(K2&"";",";"."))&", PresentacionVenta: "&""""&SUSTITUIR(SUSTITUIR(L2&"";"\";"\\");"""";"\""")&""""&", PrecioPorVolumen: "&SI(ESPACIOS(M2&"")="";"null";SUSTITUIR(M2&"";",";"."))&", PresentacionPorVolumen: "&""""&SUSTITUIR(SUSTITUIR(N2&"";"\";"\\");"""";"\""")&""""&", UnidadesPorVolumen: "&SI(ESPACIOS(O2&"")="";"null";SUSTITUIR(O2&"";",";"."))&", MinimoPorVolumen: "&SI(ESPACIOS(P2&"")="";"null";SUSTITUIR(P2&"";",";"."))&", image: "&SI(ESPACIOS(Q2&"")="";"""""";"""imagenes/"&SUSTITUIR(Q2&"";"""";"\""")&"""")&", ribbon: "&""""&SUSTITUIR(SUSTITUIR(R2&"";"\";"\\");"""";"\""")&""""&", destacado: "&SI(O(S2=VERDADERO();S2=1;MAYUSC(ESPACIOS(S2&""))="SI";MAYUSC(ESPACIOS(S2&""))="SÍ";MAYUSC(ESPACIOS(S2&""))="X";MAYUSC(ESPACIOS(S2&""))="TRUE";MAYUSC(ESPACIOS(S2&""))="VERDADERO");"true";"false")&", Atributo1: "&""""&SUSTITUIR(SUSTITUIR(T2&"";"\";"\\");"""";"\""")&""""&", Atributo2: "&""""&SUSTITUIR(SUSTITUIR(U2&"";"\";"\\");"""";"\""")&""""&", TipoMuestra: "&""""&SUSTITUIR(SUSTITUIR(V2&"";"\";"\\");"""";"\""")&""""&"},"

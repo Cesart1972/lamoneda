@@ -1,0 +1,106 @@
+/* =========================================================
+   BOTONES CON VOLUMEN
+   ---------------------------------------------------------
+   Receta de 4 sombras (estilo "skeuomorphism" suave):
+     1. luz arriba        → inset 0 1px 0  blanco 35 %
+     2. sombra abajo      → inset 0 -2px 0 negro 20 %
+     3. contacto          → 0 1px 2px      negro 40 %
+     4. brillo propio     → 0 8px 24px -6px del color del botón
+   más un degradé suave (arriba un poco más claro).
+   Al apretarlo se hunde: baja 1px y la sombra pasa a ser interna.
+
+   Cada botón define su color con --tono. Se carga al final para
+   que pise los estilos anteriores.
+   ========================================================= */
+
+.addBtn                 { --tono: var(--accent, #0f766e); }
+.addBtn:hover           { --tono: var(--accent-strong, #0b5f59); }
+.orderSummaryBtn        { --tono: #3d3d3d; }
+.orderSummaryBtn:hover  { --tono: #4a4a4a; }
+.pedidoEnviar           { --tono: #25D366; }
+.bienvenidaBoton        { --tono: #F28C00; }
+.avisoFavoritosVer,
+.chipEnBuscador         { --tono: var(--color-principal, #FFA500); }
+.formaPastilla          { --tono: var(--accent, #0f766e); }
+
+.addBtn:not(:disabled),
+.orderSummaryBtn,
+.pedidoEnviar:not(:disabled),
+.bienvenidaBoton,
+.avisoFavoritosVer,
+.chipEnBuscador,
+.formaPastilla{
+    background: var(--tono);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--tono) 78%, #ffffff), var(--tono));
+    box-shadow:
+        inset 0 1px 0 #ffffff59,
+        inset 0 -2px 0 #00000033,
+        0 1px 2px #00000066,
+        0 8px 24px -6px color-mix(in srgb, var(--tono) 60%, transparent);
+    transition: translate .08s ease, box-shadow .12s ease, background .18s ease;
+}
+
+/* Al apretar: se hunde */
+.addBtn:not(:disabled):active,
+.orderSummaryBtn:active,
+.pedidoEnviar:not(:disabled):active,
+.bienvenidaBoton:active,
+.avisoFavoritosVer:active,
+.chipEnBuscador:active{
+    translate: 0 1px;
+    transform: none;
+    box-shadow: inset 0 2px 4px #00000044;
+}
+
+/* El botón Agregar está centrado con transform: translateX(-50%).
+   Al apretarlo tiene que conservarlo; si no, salta media tarjeta a la derecha. */
+.addBtn:not(:disabled):active{
+    transform: translateX(-50%);
+}
+
+
+
+/* ---------------- VERSIÓN CLARA ----------------
+   Para los botones blancos o grises: contador − / +, flechas de los
+   chips y "Ver variedades" de los posters. Misma receta, con luz blanca
+   arriba y sombras suaves. */
+
+.counterControls,
+.chipsFlecha,
+.posterVariedades{
+    background: linear-gradient(180deg, #ffffff, #eef2f1);
+    box-shadow:
+        inset 0 1px 0 #ffffff,
+        inset 0 -2px 0 #0000001a,
+        0 1px 2px #00000040,
+        0 8px 20px -8px #00000055;
+}
+
+/* "Ver variedades" va encima de la foto: se mantiene un poco transparente */
+.posterVariedades{
+    background: linear-gradient(180deg, rgba(255,255,255,.97), rgba(236,241,239,.92));
+}
+
+/* El − y el + se hunden al apretarlos */
+.minusBtn:active,
+.plusBtn:active{
+    background: #e2e8e6;
+    box-shadow: inset 0 2px 4px #00000033;
+}
+
+.chipsFlecha:active{
+    translate: 0 1px;
+    box-shadow: inset 0 2px 4px #00000033;
+}
+
+.posterVariedades:active{
+    translate: 0 1px;
+    box-shadow: inset 0 2px 4px #00000033;
+}
+
+@media (prefers-reduced-motion:reduce){
+    .addBtn, .orderSummaryBtn, .pedidoEnviar, .bienvenidaBoton,
+    .avisoFavoritosVer, .chip, .chipEnBuscador, .formaPastilla{
+        transition: none;
+    }
+}

@@ -198,7 +198,7 @@ input::placeholder {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
   align-items: start;
-  padding-bottom:80px;
+  padding-bottom:12px;  /* el espacio para el pie "Ver pedido" lo deja .creditosPie */
 }
 
 .productCard {
@@ -826,7 +826,7 @@ input::placeholder {
 }
 
 .outOfStock:hover{
-  transform:none;
+  transform:translateX(-50%);   /* sigue centrado (no salta a la derecha) */
   box-shadow:none;
 }
 
@@ -1201,4 +1201,889 @@ input::placeholder {
     font-size: 0.86rem;
   }
 
+}
+
+/* =====================================================
+   AVISO DE CAMBIOS EN EL CARRITO
+   (sin stock, cambio de precio, etc.)
+   ===================================================== */
+
+.avisoCarrito {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 84px;
+  z-index: 2500;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #222222;
+  color: #ffffff;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  animation: avisoCarritoEntrar 0.25s ease-out;
+  cursor: pointer;
+}
+
+.avisoCarrito ul {
+  margin: 8px 0 6px;
+  padding-left: 18px;
+}
+
+.avisoCarrito li + li {
+  margin-top: 4px;
+}
+
+.avisoCarritoCerrar {
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.7;
+  text-align: right;
+}
+
+@keyframes avisoCarritoEntrar {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* =====================================================
+   FORMAS DE COMPRA (unidad / caja / bulto / pallet)
+   Solo aparecen en productos con medida o con 2 precios.
+   ===================================================== */
+
+.formaSelector {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  max-width: 280px;
+  justify-self: center;
+  padding: 3px;
+  background: #eef1f0;
+  border-radius: 999px;
+}
+
+.formaPastilla {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  background: var(--accent);
+  border-radius: 999px;
+  transition: transform 280ms cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+
+.formaSelector[data-forma="2"] .formaPastilla {
+  transform: translateX(100%);
+}
+
+.formaSelector button {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  padding: 7px 4px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: color 200ms;
+}
+
+.formaSelector button[aria-pressed="true"] {
+  color: #ffffff;
+}
+
+.formaSelector button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.formaBotonTexto {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badgeBoton {
+  flex: none;
+  padding: 0 4px;
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.formaSelector button:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
+.precioSufijo {
+  margin-left: 3px;
+  color: var(--muted);
+  font-size: 0.6em;
+  font-weight: 600;
+}
+
+.price.cambiando {
+  animation: precioCambia 300ms ease;
+}
+
+@keyframes precioCambia {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.precioDetalle {
+  margin-top: -4px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.formaPista {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.badgeAhorro {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: #e11d48;
+  color: #ffffff;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.quantityValue.conMedida {
+  font-size: 0.9rem;
+}
+
+/* Columnas: un precio debajo de cada botón del interruptor */
+.formaColumnas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  width: 100%;
+  max-width: 280px;
+  justify-self: center;
+  margin-top: -4px;
+}
+
+.formaColumna {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  min-width: 0;
+  padding: 4px 2px;
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 200ms, border-color 200ms;
+}
+
+.formaColumna.activa {
+  background: #eef7f5;
+  border-color: #cfe7e2;
+}
+
+.formaColumna.cambiando .formaPrecio {
+  animation: precioCambia 300ms ease;
+}
+
+.formaPrecio {
+  color: var(--accent-strong);
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1.15;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.formaColumna.tentador .formaPrecio {
+  color: #e11d48;
+}
+
+.formaTexto {
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+/* Lo que vale una caja/bulto/pallet: mismo formato que "por caja 12u" */
+.formaSubtotal {
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Mismo precio por unidad y por caja: un solo precio centrado */
+.mismoPrecio .price,
+.mismoPrecio .precioDetalle {
+  justify-self: center;
+  text-align: center;
+}
+
+.mismoPrecio .precioDetalle {
+  margin-top: -6px;
+}
+
+/* Pregunta "¿Querés comprar menos de 1 caja?" */
+.formaPregunta {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid #f5c26b;
+  border-radius: 10px;
+  background: #fff7e6;
+  animation: precioCambia 220ms ease;
+}
+
+.formaPreguntaTexto {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.formaPreguntaBotones {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+}
+
+.formaPreguntaSi,
+.formaPreguntaNo {
+  padding: 7px 10px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.formaPreguntaSi {
+  border: 0;
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.formaPreguntaNo {
+  border: 1.5px solid var(--line);
+  background: #ffffff;
+  color: var(--text);
+}
+
+@media (max-width: 720px) {
+  .formaSelector button {
+    padding: 6px 2px;
+    font-size: 0.72rem;
+  }
+
+  .precioDetalle,
+  .formaPista {
+    font-size: 0.72rem;
+  }
+
+  .formaPrecio {
+    font-size: 0.95rem;
+  }
+
+  .formaTexto,
+  .formaSubtotal,
+  .formaPreguntaSi,
+  .formaPreguntaNo {
+    font-size: 0.7rem;
+  }
+
+  .formaPreguntaTexto {
+    font-size: 0.74rem;
+  }
+
+  .quantityValue.conMedida {
+    font-size: 0.8rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .formaPastilla,
+  .price.cambiando {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* Lo oculto se oculta siempre, aunque tenga display propio */
+.conFormas .formaPregunta[hidden],
+.conFormas .formaSubtotal[hidden],
+.conFormas .badgeBoton[hidden],
+.conFormas .formaPista[hidden],
+.conFormas .precioDetalle[hidden],
+.conFormas .price[hidden] {
+  display: none !important;
+}
+
+
+/* =====================================================
+   SEPARADORES Y POSTERS (campo TipoMuestra)
+   ===================================================== */
+
+.catalogoSeparador {
+  --color-barra: var(--color-principal, #FFA500);
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  min-height: 46px;
+  margin-top: 10px;
+  padding: 0 16px;
+  border-radius: 14px;
+  background: var(--color-barra);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+
+.catalogoSeparador:first-child {
+  margin-top: 0;
+}
+
+.catalogoSeparador h2 {
+  margin: 0;
+  color: #ffffff;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Mensaje institucional: llena el hueco antes de una categoría nueva.
+   La foto (o el texto) entra desde la derecha dentro de su marco. */
+.institucional {
+  align-self: stretch;
+  min-height: 160px;
+  overflow: hidden;
+  border-radius: 18px;
+  background: var(--color-principal, #FFA500);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.institucionalContenido {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: translateX(105%);
+}
+
+.institucionalEntrando .institucionalContenido {
+  animation: institucionalEntrar 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.institucionalVisto .institucionalContenido {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .institucionalContenido {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes institucionalEntrar {
+  from { opacity: 0; transform: translateX(105%); }
+  to   { opacity: 1; transform: none; }
+}
+
+.institucionalImagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Sin foto: tarjeta naranja con ícono, título y texto */
+.institucionalTexto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 12px;
+  color: #ffffff;
+  text-align: center;
+  font-family: "Fredoka", system-ui, sans-serif;
+}
+
+img.institucionalIcono {
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.25));
+}
+
+.institucionalIcono {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.institucionalLogo {
+  width: 70%;
+  max-width: 160px;
+  height: auto;
+}
+
+.institucionalTitulo {
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.institucionalDetalle {
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+/* Manito: señala al producto destacado de la fila de abajo */
+.manitoDestacado {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 120px;
+  padding: 14px 10px;
+  border: 2px dashed #e11d48;
+  border-radius: 18px;
+  background: linear-gradient(160deg, #fff7c2 0%, #ffe066 100%);
+  color: #b4123a;
+  font-family: "Fredoka", system-ui, sans-serif;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(225, 29, 72, 0.12);
+}
+
+.manitoTexto {
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+img.manitoMano {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 12px;   /* lugar para el salto, sin pisar el texto de abajo */
+  object-fit: contain;
+}
+
+.manitoMano {
+  font-size: 3rem;
+  line-height: 1;
+  animation: manitoSaltar 2.4s ease-in-out infinite;
+}
+
+.manitoPista {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #7a2a00;
+}
+
+/* Salta un par de veces y descansa */
+@keyframes manitoSaltar {
+  0%, 40%, 100% { transform: translateY(0); }
+  10%, 30%      { transform: translateY(12px); }
+  20%           { transform: translateY(2px); }
+}
+
+/* El destacado brilla un momento al tocar la manito */
+.destacadoSenalado {
+  animation: destacadoBrillar 1.3s ease-out;
+}
+
+@keyframes destacadoBrillar {
+  0%   { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.6); }
+  40%  { box-shadow: 0 0 0 10px rgba(225, 29, 72, 0.25); }
+  100% { box-shadow: 0 12px 28px rgba(225, 29, 72, 0.12); }
+}
+
+/* Al buscar o filtrar: los destacados van de ancho normal (conservan borde y cinta) */
+.productGrid.modoBusqueda .productCard.is-featured {
+  grid-column: span 1;
+}
+
+/* Poster destacado que no entra en la fila: se muestra de ancho normal */
+.productCard.posterCard.is-featured.posterAchicado {
+  grid-column: span 1;
+}
+
+.posterCard {
+  display: block;
+  padding: 0;
+}
+
+.posterMarco {
+  position: relative;
+}
+
+.posterImagen {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  background: #ffffff;
+}
+
+/* Precio de las variedades: abajo a la izquierda, rojo y amarillo.
+   Va arriba del botón "Ver variedades" para no taparse. */
+.posterMarco {
+  container-type: inline-size;   /* el precio se agranda según el ancho del poster */
+}
+
+.posterPrecio {
+  position: absolute;
+  left: 10px;
+  bottom: 62px;
+  z-index: 1;
+
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  padding: 4px 12px 5px;
+
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 14px;
+  background: #e11d48;
+  /* Sombra fuerte para que se despegue de la imagen del poster */
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.45),
+    0 3px 6px rgba(0, 0, 0, 0.35);
+  transform: rotate(-4deg);
+
+  color: #FFE14D;
+  font-family: "Fredoka", system-ui, sans-serif;
+  /* El doble que antes: proporcional al ancho del poster
+     (destacado de 2 columnas o de ancho normal) */
+  font-size: 3.6rem;
+  font-size: min(15cqw, 4rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-shadow: 0 3px 0 rgba(120, 0, 20, 0.55), 0 4px 10px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+.posterPrecio small {
+  font-size: 0.45em;
+  font-weight: 700;
+  opacity: 0.95;
+}
+
+/* Poster de ancho normal (o destacado achicado), en celular y computadora:
+   precio grande, proporcional a su ancho */
+.posterCard:not(.is-featured) .posterPrecio,
+.posterCard.posterAchicado .posterPrecio {
+  left: 6px;
+  padding: 3px 8px 4px;
+  border-radius: 11px;
+  font-size: 2.2rem;
+  font-size: 18cqw;
+}
+
+/* Poster con precio mayorista: el precio mayorista, con "c/u" y la
+   condición ("desde 2u", "por caja 12u") apilados al lado. */
+
+.posterPrecioSufijo {
+  display: inline-flex;
+  flex-direction: column;
+  align-self: center;
+  gap: 1px;
+  margin-left: 2px;
+  line-height: 1;
+}
+
+.posterPrecio .posterPrecioCondicion {
+  font-size: 0.78em;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+/* Poster de ancho normal: un poco más chico para que entre la condición */
+.posterCard.conMayorista:not(.is-featured) .posterPrecio,
+.posterCard.conMayorista.posterAchicado .posterPrecio {
+  font-size: 15cqw;
+}
+
+/* Botón "Ver variedades": píldora encima del poster, abajo y centrada */
+.posterVariedades {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 20px);
+  padding: 8px 10px 8px 16px;
+
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22), 0 1px 0 rgba(255, 255, 255, 0.9) inset;
+
+  color: var(--accent-strong);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.posterVariedades:active {
+  transform: translateX(-50%) scale(0.96);
+}
+
+.posterVariedades:focus-visible {
+  outline: 3px solid var(--color-principal, #FFA500);
+  outline-offset: 2px;
+}
+
+.posterVariedadesTexto {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.posterVariedadesCantidad {
+  display: grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.posterVariedadesFlecha {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  padding: 3px;
+  border-radius: 999px;
+  background: #eef7f5;
+  transition: transform 0.25s ease;
+}
+
+.posterCard.abierto .posterVariedades {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: #ffffff;
+}
+
+.posterCard.abierto .posterVariedadesCantidad {
+  background: #ffffff;
+  color: var(--accent-strong);
+}
+
+.posterCard.abierto .posterVariedadesFlecha {
+  transform: rotate(180deg);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Variedades desplegadas: aparecen y desaparecen suave */
+.productCard.variedad {
+  border-color: #cfe7e2;
+}
+
+.variedadEntrando {
+  animation: variedadEntrar 0.28s ease both;
+}
+
+.variedadSaliendo {
+  animation: variedadSalir 0.22s ease both;
+  pointer-events: none;
+}
+
+@keyframes variedadEntrar {
+  from { opacity: 0; transform: translateY(-10px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes variedadSalir {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateY(-8px) scale(0.97); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .variedadEntrando,
+  .variedadSaliendo,
+  .institucionalContenido,
+  .manitoMano,
+  .destacadoSenalado,
+  .posterVariedadesFlecha {
+    animation: none;
+    transition: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .catalogoSeparador {
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: 12px;
+  }
+
+  .catalogoSeparador h2 {
+    font-size: 1.1rem;
+  }
+
+  .institucionalTitulo {
+    font-size: 1.2rem;
+  }
+
+  .manitoTexto {
+    font-size: 1.1rem;
+  }
+
+  .manitoMano {
+    font-size: 2.6rem;
+  }
+
+  /* Posters de ancho normal: botón más compacto para que entre el texto */
+  .posterCard:not(.is-featured) .posterVariedades,
+  .posterCard.posterAchicado .posterVariedades {
+    gap: 5px;
+    padding: 6px 6px 6px 11px;
+    font-size: 0.78rem;
+  }
+
+  .posterCard:not(.is-featured) .posterVariedadesFlecha,
+  .posterCard.posterAchicado .posterVariedadesFlecha,
+  .posterCard:not(.is-featured) .posterTextoExtra,
+  .posterCard.posterAchicado .posterTextoExtra {
+    display: none;
+  }
+
+  .posterPrecio {
+    bottom: 54px;
+  }
+
+  .posterCard:not(.is-featured) .posterPrecio,
+  .posterCard.posterAchicado .posterPrecio {
+    bottom: 50px;
+  }
+
+  .posterVariedades {
+    bottom: 10px;
+    padding: 7px 8px 7px 14px;
+    font-size: 0.82rem;
+  }
+}
+
+
+/* =====================================================
+   CRÉDITOS "Diseñado y desarrollado por Ces.Art" (js/creditos.js)
+   ===================================================== */
+
+.creditosPie{
+  display:flex;
+  justify-content:center;
+  padding:18px 16px 110px;   /* espacio para el pie "Ver pedido" + aviso de compra mínima */
+}
+
+.creditos{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:6px 12px;
+  border-radius:999px;
+  color:#6b7280;
+  font-size:.82rem;
+  text-decoration:none;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.creditosMarca{
+  color:var(--color-secundario, #7F00FF);
+  font-weight:700;
+  text-decoration:underline;
+  text-decoration-thickness:1.5px;
+  text-underline-offset:3px;
+}
+
+.creditosFlecha{
+  width:14px;
+  height:14px;
+  fill:none;
+  stroke:var(--color-secundario, #7F00FF);
+  stroke-width:2.4;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.creditos:hover .creditosMarca,
+.creditos:focus-visible .creditosMarca{
+  text-decoration-thickness:2.5px;
+}
+
+.creditos:active{
+  background:rgba(127,0,255,.08);
+}
+
+/* En el cartel de Info: franja de pie, separada del contenido del cartel
+   (línea arriba y fondo gris clarito de borde a borde), para que se note
+   que no es parte de la información de la distribuidora. */
+.creditosBienvenida{
+  display:flex;
+  justify-content:center;
+  margin:14px -16px -14px;      /* ocupa todo el ancho del cartel */
+  padding:10px 16px 12px;
+  border-top:1px solid #ECE7DC;
+  border-radius:0 0 28px 28px;
+  background:#F6F4EF;
+  font-size:.72rem;
+  color:#8a94a0;
+}
+
+.creditosBienvenida:active{
+  background:#EFEAF8;
 }

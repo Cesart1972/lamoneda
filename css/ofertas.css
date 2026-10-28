@@ -1,0 +1,898 @@
+/* =========================================================
+   OFERTAS.CSS
+   ---------------------------------------------------------
+   Ofertas "Solo x hoy" y rebajas (js/ofertas.js), el botón sello
+   de lacre (app.js → crearSello) y el carrusel 3D "Ofertas de hoy"
+   (js/carrusel-ofertas.js).
+   ========================================================= */
+
+/* Ángulo animable del borde luminoso (si el navegador no lo
+   entiende, el borde queda quieto pero se ve igual) */
+@property --angulo {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+:root {
+  --oferta-rojo: #e11d48;
+  --oferta-rojo-oscuro: #be123c;
+  --oferta-amarillo: #ffd23f;
+  --oferta-naranja: #ffb547;
+}
+
+
+/* ---------------- PRECIO TACHADO Y % (rebajas) ---------------- */
+
+.ofertaPrecios {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.productCard.is-featured .ofertaPrecios {
+  justify-content: center;
+}
+
+.productCard.conOferta .price {
+  margin-top: 0;
+  color: var(--oferta-rojo);
+}
+
+.ofertaAntes {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ofertaTachado {
+  color: var(--muted, #617182);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration-thickness: 2px;
+  text-decoration-color: rgba(225, 29, 72, 0.75);
+}
+
+.ofertaGlobo {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--oferta-rojo);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.1;
+  box-shadow: 0 2px 6px rgba(225, 29, 72, 0.35);
+}
+
+.productCard.is-featured.ofertaRebaja .price {
+  font-size: 2.3rem;
+}
+
+
+/* ---------------- TARJETA "SOLO X HOY" ----------------
+   Formato destacado (2 columnas en la grilla). Abajo de la foto, dos
+   columnas: nombre + precio de oferta c/u + price c/u tachado, y a la
+   derecha el botón sello de lacre. El % va arriba a la derecha de la foto. */
+
+.productCard.conSello {
+  container-type: inline-size;
+}
+
+.productCard.conSello .productInfo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 22px 18px 16px;
+  text-align: left;
+}
+
+.conSello .ofertaTexto {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.productCard.conSello .name {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.productCard.conSello .ofertaPrecios {
+  display: grid;
+  justify-content: start;
+  justify-items: start;
+  gap: 2px;
+}
+
+.productCard.conSello .price {
+  font-size: 2.1rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.conSello .price .precioSufijo,
+.conSello .ofertaTachado .precioSufijo {
+  margin-left: 3px;
+  font-size: 0.42em;
+  font-weight: 700;
+}
+
+.conSello .ofertaTachado {
+  font-size: 1rem;
+}
+
+.conSello .ofertaTachado .precioSufijo {
+  font-size: 0.85em;
+}
+
+/* El botón Agregar de siempre no se usa: lo reemplaza el sello */
+.conSello .purchaseActions {
+  display: none;
+}
+
+/* % arriba a la derecha de la foto */
+.ofertaGloboFoto {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 4;
+  padding: 5px 10px;
+  font-size: 0.95rem;
+}
+
+.conSello .iconosChips {
+  top: 46px;
+}
+
+/* Angosta (variedades de un poster, búsqueda): una sola columna */
+@container (max-width: 330px) {
+  .productCard.conSello .productInfo {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    padding: 20px 10px 14px;
+  }
+  .productCard.conSello .ofertaPrecios {
+    justify-content: center;
+    justify-items: center;
+  }
+  .productCard.conSello .name {
+    font-size: 1rem;
+  }
+  .productCard.conSello .price {
+    font-size: 1.6rem;
+  }
+  .conSello .selloZona {
+    --sello: 96px;
+    justify-self: center;
+  }
+}
+
+
+/* ---------------- SELLO DE LACRE ---------------- */
+
+.selloZona {
+  --sello: 116px;
+  position: relative;
+  width: var(--sello);
+  height: var(--sello);
+  justify-self: end;
+}
+
+.sello {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 140ms ease;
+}
+
+.sello:active:not(:disabled) {
+  transform: scale(0.93);
+}
+
+.sello:focus-visible {
+  outline: 3px solid var(--oferta-rojo);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+.sello.latido {
+  animation: selloLatido 420ms ease;
+}
+
+@keyframes selloLatido {
+  0% { transform: scale(1) rotate(0); }
+  35% { transform: scale(1.12) rotate(-5deg); }
+  65% { transform: scale(0.96) rotate(2deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+.selloDibujo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.selloTexto {
+  fill: #6b4600;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.selloPaso {
+  fill: #6b4600;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.selloCantidad {
+  fill: #6b4600;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 44px;
+  font-weight: 700;
+}
+
+.selloCantidad.largo {
+  font-size: 19px;
+}
+
+/* En el pedido: la cantidad en el medio, sin carrito ni step */
+.selloZona.enPedido .selloCarrito,
+.selloZona.enPedido .selloPaso,
+.selloZona.agotado .selloCarrito,
+.selloZona.agotado .selloPaso {
+  display: none;
+}
+
+.selloMenos,
+.selloMas {
+  position: absolute;
+  bottom: -4px;
+  display: none;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff1b0, #e2ae2c 60%, #b07a0e);
+  box-shadow: 0 3px 8px rgba(90, 58, 0, 0.35);
+  color: #5a3a00;
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.selloMenos { left: -12px; }
+.selloMas { right: -12px; }
+
+.selloZona.enPedido .selloMenos,
+.selloZona.enPedido .selloMas {
+  display: grid;
+}
+
+.selloZona.agotado .sello {
+  filter: grayscale(1);
+  opacity: 0.7;
+  cursor: default;
+}
+
+
+/* ---------------- BORDE LUMINOSO GIRATORIO ("Solo x hoy") ---------------- */
+/* Luz que recorre el borde con resplandor: un conic-gradient que gira
+   (--angulo) como borde y un halo que late. */
+
+.productCard.ofertaHoy:not(.ofertaAgotada) {
+  border: 3px solid transparent;
+  background:
+    linear-gradient(var(--panel, #fff), var(--panel, #fff)) padding-box,
+    conic-gradient(
+      from var(--angulo),
+      var(--oferta-naranja) 0deg,
+      var(--oferta-amarillo) 40deg,
+      #ffffff 60deg,
+      var(--oferta-amarillo) 80deg,
+      var(--oferta-naranja) 130deg,
+      var(--oferta-rojo) 230deg,
+      var(--oferta-naranja) 360deg
+    ) border-box;
+  animation:
+    ofertaGirarBorde 3.2s linear infinite,
+    ofertaHalo 3.2s ease-in-out infinite;
+}
+
+.productCard.ofertaHoy:not(.ofertaAgotada) .productImage {
+  border-radius: 5px 5px 0 0;
+}
+
+@keyframes ofertaGirarBorde {
+  to { --angulo: 360deg; }
+}
+
+@keyframes ofertaHalo {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 170, 0, 0), 0 10px 24px rgba(225, 29, 72, 0.14); }
+  50%      { box-shadow: 0 0 18px 2px rgba(255, 196, 0, 0.55), 0 12px 28px rgba(225, 29, 72, 0.22); }
+}
+
+
+/* ---------------- POSTER CON OFERTA ---------------- */
+
+.posterCard .ribbonContainer {
+  z-index: 3;
+}
+
+.posterPrecioOferta .posterPrecioAntes {
+  font-size: 0.62em;
+  font-weight: 600;
+  color: #ffffff;
+  opacity: 0.9;
+  text-decoration-thickness: 2px;
+}
+
+.posterPrecioOferta .posterGlobo {
+  position: absolute;
+  top: -14px;
+  right: -16px;
+  padding: 3px 7px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.24em;
+  background: var(--oferta-amarillo);
+  color: var(--oferta-rojo-oscuro);
+  text-shadow: none;
+  transform: rotate(8deg);
+}
+
+
+/* ---------------- AGOTADO EN MEDIO DEL DÍA ---------------- */
+
+.ofertaAgotada > :not(.ofertaAgotadaFranja) {
+  filter: grayscale(0.9);
+}
+
+.ofertaAgotada .productImage,
+.ofertaAgotada .posterImagen {
+  opacity: 0.6;
+}
+
+.ofertaAgotadaFranja {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ofertaAgotadaFranja span {
+  display: block;
+  width: 160%;
+  padding: 8px 0;
+  background: linear-gradient(135deg, #be123c, #e11d48);
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-align: center;
+  transform: rotate(-14deg);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.posterCard.ofertaAgotada .posterVariedades {
+  position: absolute;
+  z-index: 13;
+}
+
+
+/* ---------------- RENGLÓN DEL PEDIDO (js/carrito.js) ---------------- */
+
+.pedidoAntes {
+  color: var(--muted, #617182);
+  font-size: 0.9em;
+}
+
+
+/* =========================================================
+   CARRUSEL 3D "OFERTAS DE HOY"
+   ========================================================= */
+
+.ofertasHoy {
+  --ancho-cara: 160px;
+  margin: 6px 0 4px;
+  padding: 10px 0 6px;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ofertasHoy[hidden] {
+  display: none;
+}
+
+.ofertasHoyTitulo {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px 8px;
+  padding: 0 4px;
+  margin-bottom: 2px;
+  font-family: "Fredoka", system-ui, sans-serif;
+}
+
+.ofertasHoyNombre {
+  color: var(--oferta-rojo);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.ofertasHoyTermina {
+  color: var(--muted, #617182);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.ofertasHoyReloj {
+  display: inline-block;
+  min-width: 4.8em;
+  padding: 1px 7px;
+  border-radius: 6px;
+  background: #1f2933;
+  color: var(--oferta-amarillo);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.ofertasEscena {
+  position: relative;
+  height: calc(var(--ancho-cara) + 92px);
+  perspective: 1000px;
+  perspective-origin: 50% 40%;
+  touch-action: pan-y;          /* el dedo desliza la página hacia arriba y abajo */
+  cursor: grab;
+}
+
+.ofertasEscena:active {
+  cursor: grabbing;
+}
+
+/* Fondo: rayos de luz naranja muy tenues que giran muy despacio, como en
+   las promos de supermercado. Llenan el espacio alrededor del anillo.
+   Tenues y lentos a propósito: junto con el giro del anillo, unos rayos
+   marcados hacían un efecto óptico que desviaba la vista. */
+.ofertasHoy {
+  position: relative;
+  isolation: isolate;
+}
+
+.ofertasHoy::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 58%;
+  left: 50%;
+  width: max(160vmax, 1400px);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle, rgba(255, 214, 140, 0.35) 0%, rgba(255, 214, 140, 0) 22%),
+    repeating-conic-gradient(
+      from 0deg,
+      rgba(255, 160, 60, 0.09) 0deg,
+      rgba(255, 160, 60, 0.09) 3deg,
+      rgba(255, 160, 60, 0) 8deg,
+      rgba(255, 160, 60, 0) 12deg,
+      rgba(255, 160, 60, 0.09) 18deg
+    );
+  -webkit-mask-image: radial-gradient(circle, #000 0%, #000 12%, transparent 30%);
+          mask-image: radial-gradient(circle, #000 0%, #000 12%, transparent 30%);
+  animation: ofertasRayos 240s linear infinite;
+}
+
+/* Un velo cálido parejo detrás de los rayos */
+.ofertasHoy::after {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  border-radius: 18px;
+  background: radial-gradient(120% 90% at 50% 55%, #fff4e0 0%, #fff9ef 55%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+}
+
+@keyframes ofertasRayos {
+  to { rotate: 360deg; }
+}
+
+.ofertasAnillo {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  width: var(--ancho-cara);
+  margin-left: calc(var(--ancho-cara) / -2);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.ofertaCara {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--ancho-cara);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.ofertaTarjeta {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 8px 10px;
+  overflow: hidden;
+  border: 2px solid var(--oferta-naranja);
+  border-radius: 14px;
+  background: #fff;
+  /* Sin sombra en 3D: en algunos navegadores deja una franja clara */
+  text-align: center;
+}
+
+.ofertaCara.alFrente .ofertaTarjeta {
+  border: 3px solid var(--oferta-rojo);
+  padding: 7px 7px 9px;
+}
+
+.ofertaCaraMarco {
+  position: relative;
+  width: 100%;
+}
+
+.ofertaCaraFoto {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.ofertaCaraGlobo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 3px 7px;
+  font-size: 0.78rem;
+}
+
+.ofertaCaraNombre {
+  width: 100%;
+  overflow: hidden;
+  color: var(--text, #1f2933);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ofertaCaraPrecios {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0 6px;
+}
+
+.ofertaCaraPrecio {
+  color: var(--oferta-rojo);
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.ofertaCaraPrecios .ofertaTachado {
+  font-size: 0.78rem;
+}
+
+.ofertaCara.agotada .ofertaTarjeta {
+  border-color: #9aa5b1;
+  filter: grayscale(1);
+}
+
+.ofertaCara.agotada .ofertaCaraFoto {
+  opacity: 0.55;
+}
+
+.ofertaCara .ofertaAgotadaFranja span {
+  font-size: 1.05rem;
+  padding: 5px 0;
+}
+
+/* Botón de cada tarjeta: solo en la fila plana */
+.ofertaCaraAccion {
+  display: none;
+}
+
+
+/* ---------------- BOTÓN AGREGAR (afuera de la tarjeta) ---------------- */
+/* Debajo de la tarjeta del frente, montado sobre su borde de abajo.
+   Aparece cuando el anillo está quieto. */
+
+.ofertasAccion {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: -30px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px) scale(0.94);
+  transition: opacity 180ms ease, transform 180ms ease, visibility 180ms;
+}
+
+.ofertasAccion.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.ofertaControl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ofertaAgregar {
+  position: relative;
+  min-width: 132px;
+  padding: 11px 22px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #149186, var(--accent, #0f766e));
+  box-shadow: 0 6px 14px rgba(15, 118, 110, 0.35), inset 0 -3px 0 rgba(0, 0, 0, 0.15);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ofertaAgregar:active:not(:disabled) {
+  transform: translateY(1px) scale(0.97);
+}
+
+.ofertaAgregar:disabled {
+  background: #9aa5b1;
+  box-shadow: none;
+  cursor: default;
+}
+
+.ofertaEnPedido {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  display: grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: var(--oferta-rojo);
+  font-size: 0.75rem;
+}
+
+.ofertaControl.enPedido {
+  display: inline-grid;
+  grid-template-columns: 44px minmax(56px, auto) 44px;
+  height: 44px;
+  overflow: hidden;
+  border: 2px solid var(--accent, #0f766e);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 6px 14px rgba(15, 118, 110, 0.25);
+}
+
+.ofertaMenos,
+.ofertaMas {
+  height: 100%;
+  border: none;
+  background: none;
+  color: var(--accent-strong, #0b5f59);
+  font-size: 1.4rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ofertaCantidad {
+  padding: 0 4px;
+  color: var(--text, #1f2933);
+  font-size: 1rem;
+  font-weight: 800;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.ofertasPista {
+  margin: 6px 0 0;
+  color: var(--muted, #617182);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+
+/* ---------------- VARIEDADES DE UN GRUPO ---------------- */
+
+.ofertasVariedades {
+  margin: 10px 8px 0;
+  padding: 8px 10px;
+  border: 2px solid var(--oferta-naranja);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(31, 41, 51, 0.12);
+  animation: variedadesEntrar 200ms ease;
+}
+
+.ofertasVariedades[hidden] {
+  display: none;
+}
+
+@keyframes variedadesEntrar {
+  from { opacity: 0; transform: translateY(-6px); }
+}
+
+.ofertasVariedadesTitulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  color: var(--oferta-rojo);
+  font-weight: 800;
+}
+
+.ofertasVariedadesCerrar {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: var(--text, #1f2933);
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.ofertasVariedad {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-top: 1px solid var(--line, #d9e0e6);
+}
+
+.ofertasVariedadFoto {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.ofertasVariedadNombre {
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.ofertasVariedad .ofertaAgregar {
+  min-width: 0;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+}
+
+.ofertasVariedad .ofertaControl.enPedido {
+  grid-template-columns: 36px minmax(40px, auto) 36px;
+  height: 38px;
+}
+
+
+/* ---------------- FILA PLANA ----------------
+   Con "reducir movimiento", sin 3D o con muy pocas o muchas ofertas:
+   una fila que se desliza con el dedo, con el botón debajo de cada tarjeta. */
+
+.ofertasHoy.modoPlano .ofertasEscena {
+  height: auto;
+  perspective: none;
+  cursor: auto;
+  touch-action: auto;
+}
+
+.ofertasHoy.modoPlano .ofertasAnillo {
+  position: static;
+  display: flex;
+  gap: 12px;
+  width: auto;
+  margin: 0;
+  padding: 4px 16px 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  transform: none !important;
+  transform-style: flat;
+  scrollbar-width: none;
+}
+
+.ofertasHoy.modoPlano .ofertasAnillo::-webkit-scrollbar {
+  display: none;
+}
+
+.ofertasHoy.modoPlano .ofertaCara {
+  position: relative;
+  flex: 0 0 var(--ancho-cara);
+  scroll-snap-align: center;
+  opacity: 1 !important;
+  filter: none !important;
+  transform: none !important;
+}
+
+.ofertasHoy.modoPlano .ofertaTarjeta {
+  box-shadow: 0 8px 18px rgba(31, 41, 51, 0.14);
+}
+
+.ofertasHoy.modoPlano .ofertaCaraAccion {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  margin-top: -16px;
+}
+
+.ofertasHoy.modoPlano .ofertaAgregar {
+  min-width: 0;
+  padding: 9px 16px;
+  font-size: 0.9rem;
+}
+
+.ofertasHoy.modoPlano .ofertasAccion {
+  display: none;
+}
+
+@media (min-width: 721px) {
+  .ofertasHoy.modoPlano .ofertasAnillo {
+    justify-content: safe center;
+  }
+}
+
+
+/* ---------------- REDUCIR MOVIMIENTO ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .productCard.ofertaHoy:not(.ofertaAgotada) {
+    animation: none;
+    box-shadow: 0 0 12px 1px rgba(255, 196, 0, 0.45);
+  }
+  .sello.latido {
+    animation: none;
+  }
+  .ofertasHoy::before {
+    animation: none;
+  }
+}
