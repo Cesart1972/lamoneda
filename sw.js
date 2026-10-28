@@ -21,7 +21,7 @@
    PRECACHE_URLS.
    ========================================================= */
 
-const CACHE_VERSION = "v15";
+const CACHE_VERSION = "v16";
 const CACHE_APP = `app-${CACHE_VERSION}`;
 const CACHE_IMAGES = `imagenes-${CACHE_VERSION}`;
 

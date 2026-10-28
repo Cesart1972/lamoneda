@@ -423,6 +423,14 @@ Aca vamos a darle funcionalidad al listado desplegable de candidatos. Al selecio
 - Service worker v15.
 
 
+[8.0] 28-10-2026
+
+- Carrusel: el precio normal tachado va siempre en un segundo renglón, abajo del precio de oferta, así todas las tarjetas tienen el mismo alto.
+- Pantalla completa: la app instalada ocupa el 100% de la pantalla, sin la barra de estado ni la barra de navegación del celular (cliente/manifest.json → display: fullscreen; en el navegador sigue igual). Se deja el lugar de la cámara y de la rayita de gestos para que el buscador, el pie del pedido y el botón de WhatsApp no queden tapados. En iPhone la barra de estado no se puede ocultar: la app se dibuja por debajo de ella.
+- Para que tome la pantalla completa hay que desinstalar la app del celular y volver a instalarla.
+- Service worker v16.
+
+
 ---
 
 VERSIÓN DE PRODUCCIÓN: 6.9 (19-10-2026)

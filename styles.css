@@ -2087,3 +2087,28 @@ img.manitoMano {
 .creditosBienvenida:active{
   background:#EFEAF8;
 }
+
+
+/* =========================================================
+   PANTALLA COMPLETA (cliente/manifest.json → display: fullscreen)
+   La app instalada ocupa el 100% de la pantalla, sin la barra de
+   estado ni la de navegación del celular. Con el contenido de borde
+   a borde, se deja el lugar de la cámara (notch) y de la rayita de
+   gestos de abajo, para que nada quede tapado.
+   ========================================================= */
+
+body {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.toolbar {
+  top: env(safe-area-inset-top, 0px);
+}
+
+.orderFooter {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.floatingWhatsApp {
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+}
