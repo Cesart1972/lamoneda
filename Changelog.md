@@ -441,6 +441,16 @@ Aca vamos a darle funcionalidad al listado desplegable de candidatos. Al selecio
 - cliente/config.js: palabra reservada nueva (palabrasReservadas.redes) y sección "redes" con el texto de la cinta, el texto junto al logo, el logo y el color de fondo.
 - Service worker v17.
 
+[8.2] 29-10-2026
+
+- Redes: escribiendo "redes" ahora se arman portadas con todas las ofertas del día juntas:
+  - 1 portada para historias (1080 × 1920): arriba el logo, "OFERTAS DEL DÍA" y la cinta "Solo x hoy! 29/10"; en el medio todas las fotos en grilla, cada una con su cartel de precio y el %; abajo "¡Pedí ya desde el catálogo!". Arriba y abajo queda libre lo que tapa Instagram.
+  - 1 portada para el feed (1080 × 1080) por grupo, para que las fotos no queden chicas: "Almacén" y "Limpieza y perfumería" (en cliente/config.js → redes.feed, por categoría). Un grupo sin ofertas ese día no se arma.
+  - La grilla se acomoda sola a la cantidad (con 4 por grupo, 2 × 2; la última fila incompleta va centrada).
+  - "Guardar las 3" guarda la historia y las dos del feed. Las placas por producto siguen, plegadas en "Placas por producto".
+- cliente/config.js → redes: tituloHistoria, pieHistoria y feed (grupos con su título y sus categorías).
+- Service worker v18.
+
 ---
 
 VERSIÓN DE PRODUCCIÓN: 6.9 (19-10-2026)

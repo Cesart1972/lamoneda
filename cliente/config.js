@@ -89,7 +89,7 @@ const CLIENTE = {
   },
 
 
-  /* ---------------- PLACAS PARA REDES ---------------- */
+  /* ---------------- IMÁGENES PARA REDES ---------------- */
   // Se arman escribiendo palabrasReservadas.redes en el buscador.
   // Todo es opcional: si falta, se usa lo de "empresa" y "carga".
 
@@ -97,7 +97,24 @@ const CLIENTE = {
     cinta: "Solo x hoy!",                         // texto de la cinta
     textoEmpresa: "La Moneda mayorista",          // junto al logo, arriba a la derecha
     logo: "imagenes/La-Moneda-logo-removebg.webp",
-    colorFondo: "#F75101"                         // color alrededor de la foto
+    colorFondo: "#F75101",                        // color alrededor de la foto
+
+    // Portada para historias (1080 × 1920) con todas las ofertas
+    tituloHistoria: "OFERTAS DEL DÍA",
+    pieHistoria: "¡Pedí ya desde el catálogo!",   // "" = sin texto abajo
+
+    // Portadas para el feed (1080 × 1080): una por grupo, así las fotos
+    // no quedan chicas. Cada producto va al primer grupo que tenga su
+    // categoría (como está en products-data.js); si ninguno la tiene, va
+    // al grupo sin "categorias". Un grupo sin ofertas ese día no se arma.
+    feed: [
+      { titulo: "Almacén" },
+      { titulo: "Limpieza y perfumería",
+        categorias: ["PAPELES HIGIENICOS", "ROLLOS DE COCINA", "HIGIENE PERSONAL", "JABONES DE TOCADOR",
+                     "SHAMPU - ACONDICIONADOR", "TOALLAS Y PROTECTORES FEMENINOS", "JABONES PARA ROPA",
+                     "SUAVIZANTES PARA ROPA", "LIMPIEZA ROPA", "LIMPIEZA HOGAR", "DETERGENTES", "LAVANDINAS",
+                     "LIMPIADORES SUPERFICIES", "INSECTICIDAS"] }
+    ]
   },
 
 
