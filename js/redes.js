@@ -270,7 +270,8 @@
     dibujarEmpresa(ctx, logo, x + lado - 22, y + 22);
 
     // 5. Precio destacado, abajo a la izquierda
-    dibujarPrecio(ctx, product, oferta, x + 4, y + lado + 6);
+    // (adentro de la foto, sin salirse: deja lugar para el giro y la sombra)
+    dibujarPrecio(ctx, product, oferta, x + 40, y + lado - 36);
 
     return canvas;
   }
@@ -348,9 +349,10 @@
   }
 
   // Cartel amarillo del precio. Su esquina de abajo a la izquierda queda
-  // en (izquierda, abajo). escala 1 = placa por producto; conNombre
-  // false = sin el nombre (en las portadas la foto ya lo dice).
-  function dibujarPrecio(ctx, product, oferta, izquierda, abajo, escala = 1, conNombre = true) {
+  // en (izquierda, abajo). escala 1 = placa por producto.
+  // nombre: "grande" (placa por producto, hasta 2 renglones) o "sutil"
+  // (portadas: 1 renglón chico arriba del precio).
+  function dibujarPrecio(ctx, product, oferta, izquierda, abajo, escala = 1, nombre = "grande") {
     // "$ 1.199" → "$1.199" (sin espacio, se lee mejor en grande)
     const precio = formatter.format(oferta.precio).replace(/\s+/g, "");
     const antes = formatter.format(oferta.antes);
@@ -364,7 +366,9 @@
     const tamPrecio = letraQueEntra(ctx, precio, 700, 168, 500, 90);
     const anchoPrecio = ctx.measureText(precio).width;
     const ancho = Math.max(anchoPrecio + 80, 420);
-    const alto = conNombre ? 330 : 262;
+    const conNombre = nombre === "grande";
+    const nombreSutil = nombre === "sutil";
+    const alto = conNombre ? 330 : nombreSutil ? 300 : 262;
     const xCartel = 0, yCartel = -alto;
 
     // Cartel amarillo con borde rojo
@@ -392,6 +396,11 @@
       let yTexto = yCartel + 56;
       if (lineas.length === 1) yTexto += 12;
       lineas.forEach((linea, i) => ctx.fillText(linea, xCartel + 36, yTexto + i * 38));
+    } else if (nombreSutil) {
+      ctx.font = `600 32px ${LETRA}`;
+      ctx.fillStyle = "#6b5200";
+      const [linea] = renglones(ctx, product.name, ancho - 66, 1);
+      ctx.fillText(linea || "", xCartel + 36, yCartel + 50);
     }
 
     // Precio de oferta grande
@@ -400,7 +409,7 @@
     ctx.lineWidth = 6;
     ctx.strokeStyle = "#FFFFFF";
     ctx.lineJoin = "round";
-    const yPrecio = yCartel + (conNombre ? 92 : 24) + tamPrecio * 0.92;
+    const yPrecio = yCartel + (conNombre ? 92 : nombreSutil ? 58 : 24) + tamPrecio * 0.92;
     ctx.strokeText(precio, xCartel + 36, yPrecio);
     ctx.fillText(precio, xCartel + 36, yPrecio);
 
@@ -457,19 +466,19 @@
 
   // Cuántas columnas y filas para que las fotos queden lo más grandes
   // posible dentro del área
-  function armarGrilla(cantidad, ancho, alto, espacio) {
+  // titulo: alto que se deja arriba de cada foto para el nombre (0 = sin nombre)
+  function armarGrilla(cantidad, ancho, alto, espacio, titulo = 0) {
     let mejor = null;
     for (let columnas = 1; columnas <= Math.min(4, cantidad); columnas++) {
       const filas = Math.ceil(cantidad / columnas);
       const w = (ancho - espacio * (columnas - 1)) / columnas;
-      const h = (alto - espacio * (filas - 1)) / filas;
-      // La foto es cuadrada: cuenta el lado más corto (y no más de 1,35 veces el otro)
+      const h = (alto - espacio * (filas - 1)) / filas - titulo;
+      // Tarjetas cuadradas (1:1, como la foto): manda el lado más corto
       const lado = Math.min(w, h);
-      const tarjetaW = Math.min(w, lado * 1.35);
-      const tarjetaH = Math.min(h, lado * 1.35);
-      if (!mejor || lado > mejor.lado) mejor = { columnas, filas, w: tarjetaW, h: tarjetaH, lado };
+      if (!mejor || lado > mejor.lado) mejor = { columnas, filas, w: lado, h: lado, lado };
     }
-    const altoTotal = mejor.filas * mejor.h + espacio * (mejor.filas - 1);
+    const altoCelda = mejor.h + titulo;
+    const altoTotal = mejor.filas * altoCelda + espacio * (mejor.filas - 1);
     const posiciones = [];
     for (let i = 0; i < cantidad; i++) {
       const fila = Math.floor(i / mejor.columnas);
@@ -478,7 +487,7 @@
       const columna = i % mejor.columnas;
       posiciones.push({
         x: (ancho - anchoFila) / 2 + columna * (mejor.w + espacio),
-        y: (alto - altoTotal) / 2 + fila * (mejor.h + espacio),
+        y: (alto - altoTotal) / 2 + fila * (altoCelda + espacio) + titulo,
         w: mejor.w,
         h: mejor.h
       });
@@ -486,8 +495,10 @@
     return posiciones;
   }
 
-  // Tarjeta blanca con la foto y el cartel del precio
-  function dibujarTarjeta(ctx, item, foto, x, y, w, h) {
+  // Tarjeta cuadrada: la foto entera 1:1 con un borde blanco finito y el
+  // cartel del precio encima de la foto, abajo a la izquierda (sin salirse)
+  // nombreAfuera: el nombre va arriba de la foto (historia) y no en el cartel
+  function dibujarTarjeta(ctx, item, foto, x, y, w, h, nombreAfuera = false) {
     const radio = Math.min(w, h) * 0.07;
 
     ctx.save();
@@ -499,7 +510,7 @@
     ctx.fill();
     ctx.restore();
 
-    const borde = Math.max(8, Math.min(w, h) * 0.03);
+    const borde = Math.max(6, Math.min(w, h) * 0.022);
     const fx = x + borde, fy = y + borde, fw = w - borde * 2, fh = h - borde * 2;
     ctx.save();
     rectRedondeado(ctx, fx, fy, fw, fh, radio * 0.7);
@@ -507,8 +518,10 @@
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(fx, fy, fw, fh);
     if (foto) {
-      // Foto entera (sin recortar), centrada
-      dibujarContenida(ctx, foto, fx, fy, fw, fh);
+      // Foto cuadrada: la cubre entera. Si no es cuadrada, entra completa.
+      const proporcion = foto.width / foto.height;
+      if (proporcion > 0.9 && proporcion < 1.1) dibujarCubriendo(ctx, foto, fx, fy, fw, fh);
+      else dibujarContenida(ctx, foto, fx, fy, fw, fh);
     }
     ctx.restore();
 
@@ -518,13 +531,34 @@
     ctx.lineWidth = 4;
     ctx.stroke();
 
-    // Precio abajo a la izquierda, del tamaño que entre en la tarjeta
-    // (el cartel mide unos 560 × 262 a escala 1; acá ocupa la mitad del ancho)
-    // (en las fotos chicas de la historia, un poco más grande para que se lea)
-    const parte = w < 400 ? 0.6 : 0.52;
-    const escala = Math.min((w * parte) / 560, (h * 0.42) / 262);
-    dibujarPrecio(ctx, item.product, item.oferta, x + borde * 0.4, y + h - borde * 0.2, escala, false);
+    // Precio encima de la foto, abajo a la izquierda, sin salirse de la tarjeta
+    // (el cartel mide unos 560 × 300 a escala 1, con el nombre arriba). En las
+    // fotos chicas de la historia va un poco más grande para que se lea.
+    const parte = w < 400 ? 0.66 : 0.6;
+    const escala = Math.min((w * parte) / 560, (h * 0.45) / 300);
+    // Margen para que el cartel girado y su sombra no se salgan de la foto
+    const margen = borde + 22 * escala + w * 0.015;
+    dibujarPrecio(ctx, item.product, item.oferta, x + margen, y + h - margen, escala, nombreAfuera ? "" : "sutil");
+
+    if (nombreAfuera) dibujarNombreArriba(ctx, item.product.name, x, y, w);
   }
+
+  // Nombre del producto arriba de la foto, pegado a ella y alineado a la
+  // izquierda, en blanco. Hasta 2 renglones (el de abajo pegado a la foto).
+  function dibujarNombreArriba(ctx, nombre, x, y, w) {
+    ctx.save();
+    ctx.font = `600 29px ${LETRA}`;
+    const lineas = renglones(ctx, nombre, w - 8, 2);
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 3;
+    ctx.fillStyle = "#FFFFFF";
+    lineas.forEach((linea, i) => ctx.fillText(linea, x + 4, y - 12 - (lineas.length - 1 - i) * 33));
+    ctx.restore();
+  }
+
 
   // Cinta horizontal "Solo x hoy! 29/10" (centrada en cx)
   function dibujarCintaHorizontal(ctx, fecha, cx, cy, tamano, anchoMaximo) {
@@ -581,10 +615,13 @@
     ctx.restore();
   }
 
-  async function dibujarFotos(ctx, items, fotos, area) {
-    const espacio = Math.round(Math.min(area.w, area.h) * 0.03);
-    const posiciones = armarGrilla(items.length, area.w, area.h, espacio);
-    posiciones.forEach((p, i) => dibujarTarjeta(ctx, items[i], fotos[i], area.x + p.x, area.y + p.y, p.w, p.h));
+  // nombresAfuera: el nombre de cada producto arriba de su foto, con más
+  // espacio entre fotos para que se vea a cuál pertenece (historia)
+  async function dibujarFotos(ctx, items, fotos, area, nombresAfuera = false) {
+    const espacio = nombresAfuera ? 36 : Math.round(Math.min(area.w, area.h) * 0.03);
+    const titulo = nombresAfuera ? 80 : 0;
+    const posiciones = armarGrilla(items.length, area.w, area.h, espacio, titulo);
+    posiciones.forEach((p, i) => dibujarTarjeta(ctx, items[i], fotos[i], area.x + p.x, area.y + p.y, p.w, p.h, nombresAfuera));
   }
 
   // Historia de Instagram / estado de WhatsApp: 1080 × 1920, todas las ofertas.
@@ -601,7 +638,7 @@
     textoBlanco(ctx, TITULO_HISTORIA, W / 2, 330, 112, W - 100);
     dibujarCintaHorizontal(ctx, fecha, W / 2, 455, 70, W - 160);
 
-    dibujarFotos(ctx, items, fotos, { x: 48, y: 560, w: W - 96, h: 1130 });
+    dibujarFotos(ctx, items, fotos, { x: 48, y: 535, w: W - 96, h: 1125 }, true);
 
     if (PIE_HISTORIA) textoBlanco(ctx, PIE_HISTORIA, W / 2, 1752, 54, W - 120);
     return canvas;
@@ -631,7 +668,7 @@
 
     if (grupo.titulo) textoBlanco(ctx, grupo.titulo, 52, 196, 58, LADO - 104, "left");
 
-    dibujarFotos(ctx, items, fotos, { x: 40, y: 250, w: LADO - 80, h: LADO - 290 });
+    dibujarFotos(ctx, items, fotos, { x: 40, y: 240, w: LADO - 80, h: LADO - 270 });
     return canvas;
   }
 

@@ -451,6 +451,13 @@ Aca vamos a darle funcionalidad al listado desplegable de candidatos. Al selecio
 - cliente/config.js → redes: tituloHistoria, pieHistoria y feed (grupos con su título y sus categorías).
 - Service worker v18.
 
+[8.3] 29-10-2026
+
+- Redes: en las portadas cada foto queda cuadrada (1:1, como la original), sin franjas blancas a los costados. El cartel del precio va encima de la foto, abajo a la izquierda, sin salirse de ella, y arriba del precio lleva el nombre del producto en letra chica.
+- Placa por producto: el cartel del precio ya no se sale de la foto.
+- Historia: el nombre de cada producto va afuera de la foto, arriba de ella, en blanco, alineado a la izquierda y pegado a la foto (hasta 2 renglones). Más espacio entre fotos para que se vea qué nombre es de cada una. En el feed el nombre sigue chiquito dentro del cartel del precio.
+- Service worker v19.
+
 ---
 
 VERSIÓN DE PRODUCCIÓN: 6.9 (19-10-2026)
