@@ -1,0 +1,137 @@
+/* =========================================================
+   REDES.CSS
+   Ventana de las placas para redes (js/redes.js).
+   Se abre escribiendo "redes" en el buscador.
+   ========================================================= */
+
+body.redesAbierta { overflow: hidden; }
+
+.redesVelo {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+  background: rgba(0, 0, 0, .6);
+  animation: redesAparece .2s ease;
+}
+
+@keyframes redesAparece { from { opacity: 0; } to { opacity: 1; } }
+
+.redesCaja {
+  width: min(560px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .35);
+  font-family: "Fredoka", system-ui, sans-serif;
+}
+
+.redesCabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.redesTitulo {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #222;
+}
+
+.redesCerrar {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border: 0;
+  border-radius: 50%;
+  background: #f1f1f1;
+  color: #333;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.redesEstado {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: .95rem;
+  color: #555;
+}
+
+.redesGrilla {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  overflow-y: auto;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.redesPlaca {
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #eee;
+  aspect-ratio: 1 / 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
+}
+
+.redesPlaca img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.redesPlaca:active { transform: scale(.97); }
+
+.redesBotones {
+  display: flex;
+  gap: 10px;
+}
+
+.redesBotones[hidden] { display: none; }
+
+.redesBoton {
+  flex: 1;
+  min-height: 48px;
+  border: 0;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.redesBoton[hidden] { display: none; }
+.redesBoton:disabled { opacity: .5; cursor: default; }
+
+.redesGuardar {
+  background: #D90016;
+  color: #fff;
+}
+
+.redesCompartir {
+  background: #FFD400;
+  color: #3a2a00;
+}
+
+.redesPista {
+  margin: 0;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: .8rem;
+  color: #888;
+}
+
+.redesPista[hidden] { display: none; }

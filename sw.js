@@ -21,7 +21,7 @@
    PRECACHE_URLS.
    ========================================================= */
 
-const CACHE_VERSION = "v16";
+const CACHE_VERSION = "v17";
 const CACHE_APP = `app-${CACHE_VERSION}`;
 const CACHE_IMAGES = `imagenes-${CACHE_VERSION}`;
 
@@ -43,6 +43,8 @@ const PRECACHE_URLS = [
   "js/ofertas.js",
   "js/carrusel-ofertas.js",
   "css/ofertas.css",
+  "js/redes.js",
+  "css/redes.css",
   "js/favoritos.js",
   "js/search-engine-v1.js",
   "js/formas-compra.js",

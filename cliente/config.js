@@ -81,7 +81,23 @@ const CLIENTE = {
     enviarIgual: "send",
 
     // Pone todos los productos sin stock como disponibles
-    desbloquear: "unlock"
+    desbloquear: "unlock",
+
+    // Arma las placas para redes (1080 × 1080) de las ofertas
+    // "Solo x hoy" y las guarda en el celular (js/redes.js)
+    redes: "redes"
+  },
+
+
+  /* ---------------- PLACAS PARA REDES ---------------- */
+  // Se arman escribiendo palabrasReservadas.redes en el buscador.
+  // Todo es opcional: si falta, se usa lo de "empresa" y "carga".
+
+  redes: {
+    cinta: "Solo x hoy!",                         // texto de la cinta
+    textoEmpresa: "La Moneda mayorista",          // junto al logo, arriba a la derecha
+    logo: "imagenes/La-Moneda-logo-removebg.webp",
+    colorFondo: "#F75101"                         // color alrededor de la foto
   },
 
 

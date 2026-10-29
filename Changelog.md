@@ -431,6 +431,16 @@ Aca vamos a darle funcionalidad al listado desplegable de candidatos. Al selecio
 - Service worker v16.
 
 
+[8.1] 29-10-2026
+
+- Placas para redes (archivos nuevos js/redes.js y css/redes.css). Escribiendo "redes" en el buscador se arma una imagen cuadrada (1080 × 1080, 1:1) por cada oferta "Solo x hoy" del día y se abre la ventana "Placas para redes".
+  - Cada placa: la foto con marco blanco, línea dorada y resplandor amarillo sobre el naranja de la empresa con rayos suaves; cinta roja "Solo x hoy! 29/10" en diagonal arriba a la izquierda (la fecha en amarillo); logo y "La Moneda mayorista" chiquito arriba a la derecha; abajo a la izquierda el cartel amarillo con el nombre, el precio de oferta grande en rojo, el precio normal tachado y la estrella con el %.
+  - Van las mismas ofertas del carrusel: un grupo (poster) con todas sus variedades en la misma oferta es una sola placa. Las agotadas no van.
+  - "Guardar las N": en Android se descargan y aparecen en la galería (álbum Descargas); el navegador puede preguntar una vez si permite varias descargas. En iPhone se abre el menú de compartir con "Guardar imágenes" (van a Fotos). "Compartir" (Android) las manda todas juntas a WhatsApp, Instagram, etc. Tocando una placa se guarda solo esa.
+  - Archivos: oferta-2026-10-29-01-nombre-del-producto.jpg.
+- cliente/config.js: palabra reservada nueva (palabrasReservadas.redes) y sección "redes" con el texto de la cinta, el texto junto al logo, el logo y el color de fondo.
+- Service worker v17.
+
 ---
 
 VERSIÓN DE PRODUCCIÓN: 6.9 (19-10-2026)
