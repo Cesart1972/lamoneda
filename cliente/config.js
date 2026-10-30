@@ -101,7 +101,7 @@ const CLIENTE = {
 
     // Portada para historias (1080 × 1920) con todas las ofertas
     tituloHistoria: "OFERTAS DEL DÍA",
-    pieHistoria: "¡Pedí ya desde el catálogo!",   // "" = sin texto abajo
+    pieHistoria: "¡Pedí ya desde el catálogo online!",   // "" = sin texto abajo
 
     // Portadas para el feed (1080 × 1080): una por grupo, así las fotos
     // no quedan chicas. Cada producto va al primer grupo que tenga su
@@ -231,7 +231,7 @@ const CLIENTE = {
 
   mensajes: {
     // Botón verde flotante (consulta sin pedido)
-    consulta: "¡Hola! Estuve viendo tu lista de precios y quería hacerte una consulta.",
+    consulta: "¡Hola! Estuve viendo tu catálogo y quería hacerte una consulta.",
 
     // Encabezado del pedido
     tituloPedido: "🛒 *PEDIDO*",
