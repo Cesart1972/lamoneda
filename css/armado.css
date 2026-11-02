@@ -1,0 +1,361 @@
+/*====================================================
+  ARMADO.CSS
+  Hoja "Armar pedido" (js/armado.js), para la distribuidora
+====================================================*/
+
+/* El pie del catálogo avisa que se está armando un pedido */
+.orderFooter.modoArmado .orderSummaryBtn{
+    background:linear-gradient(180deg,#1e3a8a,#172554);
+}
+
+/* Fondo oscuro + hoja que sube desde abajo (como "Tu pedido") */
+.armadoVelo{
+    position:fixed;
+    inset:0;
+    z-index:var(--z-modal, 2000);
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    background:rgba(20,20,20,0);
+    transition:background-color .3s ease;
+}
+
+.armadoVelo.visible{
+    background:rgba(20,20,20,.5);
+}
+
+.armadoVelo[hidden]{
+    display:none;
+}
+
+.armadoHoja{
+    display:flex;
+    flex-direction:column;
+    width:100%;
+    max-width:620px;
+    height:94vh;
+    height:94dvh;
+    border-radius:20px 20px 0 0;
+    background:#ffffff;
+    box-shadow:0 -10px 30px rgba(0,0,0,.2);
+    transform:translateY(100%);
+    transition:transform .32s cubic-bezier(.33,1,.68,1);
+    padding-bottom:env(safe-area-inset-bottom, 0px);
+}
+
+.armadoVelo.visible .armadoHoja{
+    transform:none;
+}
+
+.armadoHoja:focus{
+    outline:none;
+}
+
+.armadoEncabezado{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 16px 10px;
+    border-bottom:1px solid var(--line, #d9e0e6);
+}
+
+.armadoEncabezado h2{
+    margin:0;
+    font-size:1.15rem;
+    color:#1e3a8a;
+}
+
+.armadoCerrar{
+    width:36px;
+    height:36px;
+    border:0;
+    border-radius:999px;
+    background:#f1f3f2;
+    font-size:1rem;
+    cursor:pointer;
+}
+
+.armadoCuerpo{
+    flex:1;
+    overflow-y:auto;
+    padding:8px 14px;
+}
+
+.armadoResumen{
+    margin:2px 0 8px;
+    color:var(--muted, #617182);
+    font-size:.85rem;
+}
+
+.armadoAyuda{
+    margin:6px 0 10px;
+    color:var(--text, #1f2933);
+    font-size:.95rem;
+    line-height:1.4;
+}
+
+.armadoTexto{
+    width:100%;
+    padding:10px;
+    border:2px solid var(--line, #d9e0e6);
+    border-radius:12px;
+    font:inherit;
+    font-size:.9rem;
+    resize:vertical;
+}
+
+.armadoAviso{
+    margin:8px 0 0;
+    color:#be123c;
+    font-size:.88rem;
+    font-weight:700;
+}
+
+.armadoAviso[hidden]{
+    display:none;
+}
+
+.armadoNoReconocidas{
+    display:grid;
+    gap:4px;
+    margin:0 0 10px;
+    padding:10px 12px;
+    border-radius:12px;
+    background:#fef3c7;
+    color:#78350f;
+    font-size:.85rem;
+}
+
+.armadoLista{
+    margin:0;
+    padding:0;
+    list-style:none;
+}
+
+/* Fila: foto | nombre y detalle | subtotal
+         entrega (− 15 u. +)  ·  HECHO / CRÍTICO */
+.armadoFila{
+    display:grid;
+    grid-template-columns:48px minmax(0,1fr) auto;
+    grid-template-areas:
+        "foto info subtotal"
+        "foto entrega entrega"
+        "foto estados estados";
+    gap:6px 10px;
+    margin-bottom:8px;
+    padding:10px;
+    border:1px solid var(--line, #d9e0e6);
+    border-radius:14px;
+    background:#ffffff;
+    transition:background-color .2s ease, border-color .2s ease;
+}
+
+.armadoFila.hecho{
+    background:#dcfce7;
+    border-color:#86efac;
+}
+
+.armadoFila.estado-sinstock{
+    border-left:5px solid #e11d48;
+}
+
+.armadoFila.estado-critico{
+    border-left:5px solid #f59e0b;
+}
+
+.armadoFoto{
+    grid-area:foto;
+    width:48px;
+    height:48px;
+    object-fit:contain;
+    border-radius:8px;
+    background:#fff;
+}
+
+.armadoInfo{
+    grid-area:info;
+    display:grid;
+    gap:2px;
+    min-width:0;
+}
+
+.armadoNombre{
+    color:var(--text, #1f2933);
+    font-size:.98rem;
+    font-weight:700;
+    line-height:1.2;
+}
+
+.armadoDetalle{
+    color:var(--muted, #617182);
+    font-size:.82rem;
+}
+
+.armadoOferta{
+    color:#e11d48;
+    font-weight:700;
+}
+
+.armadoTicket{
+    color:#b45309;
+    font-size:.78rem;
+}
+
+.armadoSubtotal{
+    grid-area:subtotal;
+    color:var(--text, #1f2933);
+    font-size:1rem;
+}
+
+.armadoEntrega{
+    grid-area:entrega;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:6px 10px;
+}
+
+.armadoMenos,
+.armadoMas{
+    width:40px;
+    height:40px;
+    border:2px solid var(--accent, #0f766e);
+    border-radius:50%;
+    background:#ffffff;
+    color:var(--accent-strong, #0b5f59);
+    font-size:1.3rem;
+    font-weight:800;
+    line-height:1;
+    cursor:pointer;
+}
+
+.armadoMenos:disabled{
+    opacity:.35;
+    cursor:default;
+}
+
+.armadoCantidad{
+    min-width:52px;
+    color:var(--text, #1f2933);
+    font-size:1.1rem;
+    font-weight:800;
+    text-align:center;
+}
+
+.armadoEquivale{
+    color:var(--accent-strong, #0b5f59);
+    font-size:.9rem;
+    font-weight:700;
+}
+
+.armadoFaltan{
+    padding:2px 8px;
+    border-radius:999px;
+    background:#ffe4e6;
+    color:#be123c;
+    font-size:.8rem;
+    font-weight:700;
+}
+
+.armadoEstados{
+    grid-area:estados;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+.armadoHecho,
+.armadoEstado,
+.armadoQuitar{
+    min-width:96px;
+    padding:8px 12px;
+    border:2px solid #9aa5b1;
+    border-radius:999px;
+    background:#ffffff;
+    color:#475569;
+    font-size:.82rem;
+    font-weight:800;
+    letter-spacing:.03em;
+    cursor:pointer;
+}
+
+.armadoHecho.activo{
+    border-color:#16a34a;
+    background:#16a34a;
+    color:#ffffff;
+}
+
+.armadoEstado.critico{
+    border-color:#f59e0b;
+    background:#f59e0b;
+    color:#ffffff;
+}
+
+.armadoEstado.sinstock{
+    border-color:#e11d48;
+    background:#e11d48;
+    color:#ffffff;
+}
+
+.armadoQuitar{
+    min-width:0;
+    border-color:transparent;
+    color:#be123c;
+}
+
+/* Pie: total, Enviar y botones chicos */
+.armadoPie{
+    display:grid;
+    gap:8px;
+    padding:10px 14px 12px;
+    border-top:1px solid var(--line, #d9e0e6);
+}
+
+.armadoTotal{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-size:1.05rem;
+}
+
+.armadoTotal strong{
+    font-size:1.35rem;
+}
+
+.armadoEnviar{
+    padding:13px 16px;
+    border:0;
+    border-radius:14px;
+    background:#25d366;
+    color:#ffffff;
+    font-size:1.05rem;
+    font-weight:800;
+    cursor:pointer;
+}
+
+.armadoBotones{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+.armadoSecundario{
+    flex:1 1 30%;
+    padding:10px 8px;
+    border:2px solid var(--line, #d9e0e6);
+    border-radius:12px;
+    background:#ffffff;
+    color:var(--text, #1f2933);
+    font-size:.85rem;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.armadoSecundario:disabled{
+    opacity:.45;
+    cursor:default;
+}
+
+.armadoTerminar{
+    color:#be123c;
+}

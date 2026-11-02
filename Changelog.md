@@ -458,6 +458,22 @@ Aca vamos a darle funcionalidad al listado desplegable de candidatos. Al selecio
 - Historia: el nombre de cada producto va afuera de la foto, arriba de ella, en blanco, alineado a la izquierda y pegado a la foto (hasta 2 renglones). Más espacio entre fotos para que se vea qué nombre es de cada una. En el feed el nombre sigue chiquito dentro del cartel del precio.
 - Service worker v19.
 
+[8.4] 02-11-2026
+
+- Armar pedido (archivos nuevos js/armado.js y css/armado.css), para la distribuidora:
+  - Se abre escribiendo "order" en el buscador (cliente/config.js → palabrasReservadas.armar). Se copia en WhatsApp el mensaje del pedido del cliente y se toca "Pegar pedido" (o se pega en el cuadro).
+  - La app lee el ticket y los productos entran al carrito del celular. Los renglones que no reconoce se muestran aparte, para agregarlos desde el catálogo.
+  - Precios: siempre los de la app (si el cliente editó el mensaje, no importa). Si el ticket dice "Oferta 02/11" y ese día el producto tenía esa oferta, se respeta aunque se arme otro día.
+  - Cada producto: cuánto pidió, cuánto se entrega con − y + de a una unidad, y el subtotal. Lo que pidió por bulto se cobra todo al PrecioPorVolumen aunque se entregue menos: "= 1 bulto + 5 u.".
+  - Botones: HECHO (la fila se pinta de verde) y CRÍTICO. CRÍTICO tocado otra vez pasa a SIN STOCK y otra vez más se borra. Al entregar menos de lo pedido pasa solo a SIN STOCK (y se borra solo si se vuelve a lo pedido).
+  - Lista de compras: los productos CRÍTICO y SIN STOCK se acumulan (entre pedidos) y se descargan como archivo lista-compras-AAAA-MM-DD.csv con las columnas Producto y Estado, para abrir con Excel. "Vaciar lista" la borra (con doble toque).
+  - "Agregar productos" cierra la hoja para seguir agregando desde el catálogo lo que el cliente se olvidó (aparecen como "Agregado"). El pie del catálogo dice "📦 Armando pedido" (en azul) y vuelve a abrir la hoja. Sin compra mínima.
+  - "Enviar al cliente": arma el ticket final ("✅ PEDIDO ARMADO", lo entregado, "Esta vez no teníamos:" con los faltantes, el total, el alias para transferir y "En un ratito te lo estamos llevando…") y abre el menú de compartir para elegir el chat del cliente (también queda copiado). Textos en cliente/config.js → armado.
+  - El armado queda guardado en el celular aunque se cierre la app. "Terminar pedido" (con doble toque) vacía el carrito y el armado; la lista de compras se mantiene.
+  - Sin servidor: no descuenta stock para los demás clientes.
+- Service worker v20.
+
+
 ---
 
 VERSIÓN DE PRODUCCIÓN: 6.9 (19-10-2026)
@@ -479,7 +495,7 @@ IDEAS PARA FUTURAS MEJORAS (anotadas el 02-11-2026 · todavía no programadas)
 - En el body, solo las barras de categoría y los productos.
 - En la tarjeta, la parte de precios va en 2 columnas (si el producto tiene 2 precios): cada columna con su precio y su botón con el step. O sea, 2 botones, o un botón grande con un divisor en el medio.
 
-3) Armar el pedido con el stock real, respetando el PrecioPorVolumen
+3) Armar el pedido con el stock real, respetando el PrecioPorVolumen  → HECHO en la 8.4 (palabra "order")
 - Para cuando el pedido del cliente esté cargado en nuestra app (hoy llega con nuestro formato por WhatsApp al mismo teléfono donde está la app; ver si se puede hacer sin back-end).
 - Caso: el cliente compró por bulto cerrado y el stock no alcanza para esa cantidad de bultos.
 - Ejemplo: compró 2 bultos de un producto que trae 10 unidades por bulto, y en stock hay 1 bulto + 5 unidades. Al armar el pedido en la app se descuentan esas 5 unidades, pero en el ticket sale "1 bulto + 5 unidades" y todas al PrecioPorVolumen (no se le cobran las 5 sueltas a precio por unidad).

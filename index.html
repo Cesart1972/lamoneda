@@ -47,6 +47,7 @@
   <link rel="stylesheet" href="css/botones.css">
   <link rel="stylesheet" href="css/ofertas.css">
   <link rel="stylesheet" href="css/redes.css">
+  <link rel="stylesheet" href="css/armado.css">
 
   <!-- Letra redondeada para la bienvenida (si no carga, se usa la del sistema) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -542,6 +543,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+<!-- Armar pedido: antes de app.js (app.js lo usa al cargar el carrito) -->
+<script src="js/armado.js"></script>
 <script src="app.js"></script>
 <script src="js/carrito.js"></script>
 <script src="js/chips.js"></script>

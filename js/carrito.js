@@ -35,6 +35,8 @@
 
   function faltaParaElMinimo() {
     if (!COMPRA_MINIMA || enviarSinMinimo) return 0;
+    // Armando el pedido de un cliente (js/armado.js): sin compra mínima
+    if (typeof armadoActivo === "function" && armadoActivo()) return 0;
     // Con el mismo total redondeado que ve el cliente
     return Math.max(0, COMPRA_MINIMA - roundToHundreds(totalDelPedido()));
   }
@@ -94,6 +96,11 @@
 
   // La hoja sube desde abajo y el fondo se oscurece de a poco
   function abrirHoja() {
+    // Con un pedido en armado, "Ver pedido" abre la hoja del armado
+    if (typeof armadoActivo === "function" && armadoActivo() && window.abrirArmado) {
+      window.abrirArmado();
+      return;
+    }
     if (Object.keys(cart).length === 0) return;
     if (!hoja) construirHoja();
     clearTimeout(temporizadorCierre);

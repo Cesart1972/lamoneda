@@ -128,7 +128,9 @@ function formaEnTarjeta(product) {
 }
 
 function precioUnitarioEnCarrito(product) {
-  return formaEnCarrito(product).precioUnitario;
+  // Armando un pedido (js/armado.js): el precio queda fijo desde que se cargó
+  const fijo = typeof precioArmado === "function" ? precioArmado(product) : null;
+  return fijo ?? formaEnCarrito(product).precioUnitario;
 }
 
 function guardarFormaEnCarrito(id, forma) {
@@ -2161,6 +2163,10 @@ function sincronizarCarrito(preciosGuardados, nombresGuardados) {
   Object.keys(cart).forEach(id => {
     const product = productoPorId(id);
     const cantidad = Number(cart[id]) || 0;
+
+    // Pedido que se está armando (js/armado.js): las cantidades y los
+    // precios los maneja el armado (entregas parciales, sin stock, etc.)
+    if (product && typeof esLineaArmado === "function" && esLineaArmado(id)) return;
 
     if (!product || !esProducto(product)) {
       quitarDelCarrito(id);

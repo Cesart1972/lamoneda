@@ -85,7 +85,24 @@ const CLIENTE = {
 
     // Arma las placas para redes (1080 × 1080) de las ofertas
     // "Solo x hoy" y las guarda en el celular (js/redes.js)
-    redes: "redes"
+    redes: "redes",
+
+    // Abre "Armar pedido": pegás el pedido que mandó el cliente por
+    // WhatsApp y lo armás con el stock real (js/armado.js)
+    armar: "order"
+  },
+
+
+  /* ---------------- ARMAR PEDIDO (mensaje al cliente) ---------------- */
+  // Textos del ticket que se le manda al cliente con el pedido armado.
+  // {alias} se completa con pedido.alias. Vacío ("") = no va ese renglón.
+
+  armado: {
+    titulo: "✅ *PEDIDO ARMADO*",
+    intro: "¡Hola! Tu pedido ya está listo:",
+    faltantes: "Esta vez no teníamos:",
+    transferencia: "Si querés pagar por transferencia, el alias es *{alias}*.",
+    cierre: "En un ratito te lo estamos llevando. Te confirmamos bien el horario."
   },
 
 
