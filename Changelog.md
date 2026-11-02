@@ -463,3 +463,32 @@ Aca vamos a darle funcionalidad al listado desplegable de candidatos. Al selecio
 VERSIÓN DE PRODUCCIÓN: 6.9 (19-10-2026)
 - Congelada para subir a GitHub. Lo que sigue (compra por grupo, etc.) va en versiones nuevas.
 - Orden de los chips (de izquierda a derecha): Solo x hoy, Liquidación, Ofertas, Nuevos, Más vendidos, Niños, Sin TACC, Favoritos.
+
+---
+
+IDEAS PARA FUTURAS MEJORAS (anotadas el 02-11-2026 · todavía no programadas)
+
+1) Distribuidoras que no venden online (la app como lista de precios)
+- Opción en cliente/config.js para las distribuidoras que solo usan la app como lista de precios.
+- El botón de enviar pedido pasa a llamarse algo como "Armar nota de pedido": le sirve al cliente para armarse un presupuesto antes de ir a comprar.
+- La nota se la manda el cliente a sí mismo como recordatorio. Después, si quiere, reenvía ese mensaje a alguien de la empresa para que le vaya armando el pedido.
+
+2) Modo SIMPLE (para la gente que no sabe navegar la app)
+- Se saca "TODO" de la pantalla. Queda solo el header con el logo y el botón "Modo SIMPLE" activado.
+- Sin barra de búsqueda: el cliente solo scrollea.
+- En el body, solo las barras de categoría y los productos.
+- En la tarjeta, la parte de precios va en 2 columnas (si el producto tiene 2 precios): cada columna con su precio y su botón con el step. O sea, 2 botones, o un botón grande con un divisor en el medio.
+
+3) Armar el pedido con el stock real, respetando el PrecioPorVolumen
+- Para cuando el pedido del cliente esté cargado en nuestra app (hoy llega con nuestro formato por WhatsApp al mismo teléfono donde está la app; ver si se puede hacer sin back-end).
+- Caso: el cliente compró por bulto cerrado y el stock no alcanza para esa cantidad de bultos.
+- Ejemplo: compró 2 bultos de un producto que trae 10 unidades por bulto, y en stock hay 1 bulto + 5 unidades. Al armar el pedido en la app se descuentan esas 5 unidades, pero en el ticket sale "1 bulto + 5 unidades" y todas al PrecioPorVolumen (no se le cobran las 5 sueltas a precio por unidad).
+
+4) Bonificaciones del tipo "comprás X, te regalamos Y"
+- Ejemplos: comprás 10 bultos y te regalamos 1 bulto; comprás 5 bultos y te regalamos 3 unidades.
+- Para no agregar otra columna, se escribe en el ribbon con una etiqueta: #10b+1b (Gratis) o #5b+3u (Gratis). b = bulto, u = unidad.
+- El sistema la reconoce y al armar el ticket agrega la bonificación (ej. "+ 1 bulto de regalo").
+
+5) Horario de entrega
+- Una vez armado el pedido, se le mandan al cliente las opciones de horario de entrega.
+- A diseñar: un formulario tipo WhatsApp (botones / respuestas rápidas) o llevar toda esa conversación de la entrega dentro de la app.
