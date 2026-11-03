@@ -62,7 +62,10 @@ const CLIENTE = {
     compraMinima: 30000,
 
     // Alias para transferencias (botón "Copiar" en la bienvenida)
-    alias: "cesarmompo.mp"
+    alias: "cesarmompo.mp",
+
+    // Titular de la cuenta del alias (va en el ticket del pedido armado)
+    titular: "Cesar Alfredo Mompo"
   },
 
 
@@ -95,13 +98,14 @@ const CLIENTE = {
 
   /* ---------------- ARMAR PEDIDO (mensaje al cliente) ---------------- */
   // Textos del ticket que se le manda al cliente con el pedido armado.
-  // {alias} se completa con pedido.alias. Vacío ("") = no va ese renglón.
+  // {alias} y {titular} se completan con pedido.alias y pedido.titular.
+  // Vacío ("") = no va ese renglón.
 
   armado: {
     titulo: "✅ *PEDIDO ARMADO*",
     intro: "¡Hola! Tu pedido ya está listo:",
     faltantes: "Esta vez no teníamos:",
-    transferencia: "Si querés pagar por transferencia, el alias es *{alias}*.",
+    transferencia: "Si querés pagar por transferencia, el alias es *{alias}* (a nombre de {titular}).",
     cierre: "En un ratito te lo estamos llevando. Te confirmamos bien el horario."
   },
 

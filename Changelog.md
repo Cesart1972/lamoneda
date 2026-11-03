@@ -477,6 +477,7 @@ Aca vamos a darle funcionalidad al listado desplegable de candidatos. Al selecio
 
 - Armar pedido: "Enviar al cliente" da el pedido por terminado (vacía el armado y el carrito, con el aviso "✓ Pedido enviado"). Si se cierra el menú de compartir sin elegir chat, no se termina: el ticket queda copiado y el pedido sigue armado.
 - Se saca "Terminar pedido". En su lugar, "Descartar" (con doble toque), solo para tirar un pedido sin mandarlo (ej. se pegó el mensaje equivocado).
+- Ticket del pedido armado: junto al alias va el titular de la cuenta: "el alias es *cesarmompo.mp* (a nombre de Cesar Alfredo Mompo)". Sale de cliente/config.js → pedido.titular (nuevo); si está vacío, no se muestra.
 
 
 ---

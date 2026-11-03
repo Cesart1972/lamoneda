@@ -77,7 +77,7 @@ function guardarArmado() {
     titulo: "✅ *PEDIDO ARMADO*",
     intro: "¡Hola! Tu pedido ya está listo:",
     faltantes: "Esta vez no teníamos:",
-    transferencia: "Si querés pagar por transferencia, el alias es *{alias}*.",
+    transferencia: "Si querés pagar por transferencia, el alias es *{alias}* (a nombre de {titular}).",
     cierre: "En un ratito te lo estamos llevando. Te confirmamos bien el horario."
   }, (typeof CLIENTE !== "undefined" && CLIENTE.armado) || {});
 
@@ -455,7 +455,13 @@ function guardarArmado() {
     texto += `💰 *TOTAL: ${formatter.format(roundToHundreds(totalArmado()))} (${articulos} ${articulos === 1 ? "artículo" : "artículos"})*\n`;
 
     const alias = (CLIENTE.pedido && CLIENTE.pedido.alias) || "";
-    if (alias && TEXTOS.transferencia) texto += `\n${TEXTOS.transferencia.replace("{alias}", alias)}`;
+    const titular = (CLIENTE.pedido && CLIENTE.pedido.titular) || "";
+    if (alias && TEXTOS.transferencia) {
+      let renglon = TEXTOS.transferencia.replace("{alias}", alias);
+      // Sin titular cargado, se saca "(a nombre de …)"
+      renglon = titular ? renglon.replace("{titular}", titular) : renglon.replace(/\s*\([^()]*\{titular\}[^()]*\)/, "").replace("{titular}", "");
+      texto += `\n${renglon}`;
+    }
     if (TEXTOS.cierre) texto += `\n${TEXTOS.cierre}`;
     return texto;
   }
