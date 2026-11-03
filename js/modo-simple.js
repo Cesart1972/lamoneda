@@ -16,6 +16,10 @@
    - Cada producto con sus precios en columnas, cada una con su
      botón y su step (ver app.js → prepararFormasDeCompra).
    - El pie "Ver pedido" sigue igual, para mandar el pedido.
+   - Como no hay buscador: botón grande "Ver categorías" arriba de los
+     productos y, al deslizar, el botón flotante "Categorías". Los dos
+     abren la lista de categorías a pantalla completa: un toque y va
+     directo a esa parte del catálogo.
 
    Queda guardado en el celular (se abre en el mismo modo).
    Se carga ANTES de app.js, así la primera vez ya se dibuja en el
@@ -75,6 +79,7 @@ function estaEnModoSimple() {
       localStorage.setItem(MODO_SIMPLE_KEY, simple ? "1" : "0");
     } catch (error) { /* sin almacenamiento */ }
     if (simple) limpiarFiltros();
+    if (flotante) flotante.hidden = true;
     pintarBoton();
     handleFilterPipeline();
     window.scrollTo(0, 0);
@@ -95,6 +100,95 @@ function estaEnModoSimple() {
     pintarBoton();
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", crearBoton);
-  else crearBoton();
+  /* ---------------- CATEGORÍAS ---------------- */
+  // Botón grande arriba, botón flotante al deslizar y la lista
+
+  let lista = null;
+  let flotante = null;
+
+  function crearBotonesCategorias() {
+    const grilla = document.getElementById("productGrid");
+    if (!grilla) return;
+
+    const arriba = document.createElement("button");
+    arriba.type = "button";
+    arriba.className = "simpleCategorias";
+    arriba.innerHTML = `<span aria-hidden="true">📋</span> Ver categorías`;
+    arriba.onclick = abrirLista;
+    grilla.before(arriba);
+
+    flotante = document.createElement("button");
+    flotante.type = "button";
+    flotante.className = "simpleCategoriasFlotante";
+    flotante.innerHTML = `<span aria-hidden="true">📋</span> Categorías`;
+    flotante.onclick = abrirLista;
+    flotante.hidden = true;
+    document.body.appendChild(flotante);
+
+    // El flotante aparece cuando el botón de arriba ya no se ve
+    window.addEventListener("scroll", () => {
+      flotante.hidden = !estaEnModoSimple() || arriba.getBoundingClientRect().bottom > 0;
+    }, { passive: true });
+  }
+
+  function abrirLista() {
+    if (!lista) {
+      lista = document.createElement("div");
+      lista.className = "simpleListaVelo";
+      lista.setAttribute("role", "dialog");
+      lista.setAttribute("aria-modal", "true");
+      lista.setAttribute("aria-label", "Categorías");
+      document.body.appendChild(lista);
+      document.addEventListener("keydown", evento => {
+        if (evento.key === "Escape") cerrarLista();
+      });
+    }
+
+    lista.innerHTML = `
+      <div class="simpleListaCabecera">
+        <h2>Categorías</h2>
+        <button type="button" class="simpleListaCerrar" aria-label="Cerrar">✕</button>
+      </div>
+      <ul class="simpleListaCategorias"></ul>`;
+    lista.querySelector(".simpleListaCerrar").onclick = cerrarLista;
+
+    const ul = lista.querySelector("ul");
+    document.querySelectorAll("#productGrid .catalogoSeparador").forEach(barra => {
+      const item = document.createElement("li");
+      const boton = document.createElement("button");
+      boton.type = "button";
+      const nombre = document.createElement("span");
+      nombre.textContent = barra.dataset.nombre || barra.textContent.trim();
+      boton.appendChild(nombre);
+      if (barra.dataset.cantidad) {
+        const cantidad = document.createElement("small");
+        cantidad.textContent = barra.dataset.cantidad;
+        boton.appendChild(cantidad);
+      }
+      boton.onclick = () => {
+        cerrarLista();
+        const arriba = barra.getBoundingClientRect().top + window.scrollY - 8;
+        window.scrollTo({ top: arriba, behavior: "auto" });
+      };
+      item.appendChild(boton);
+      ul.appendChild(item);
+    });
+
+    lista.hidden = false;
+    document.body.classList.add("pedidoAbierto");   // sin scroll de fondo
+  }
+
+  function cerrarLista() {
+    if (!lista || lista.hidden) return;
+    lista.hidden = true;
+    document.body.classList.remove("pedidoAbierto");
+  }
+
+  function iniciar() {
+    crearBoton();
+    crearBotonesCategorias();
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", iniciar);
+  else iniciar();
 })();

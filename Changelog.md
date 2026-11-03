@@ -507,6 +507,14 @@ Aca vamos a darle funcionalidad al listado desplegable de candidatos. Al selecio
 - Encabezado del celular con 4 botones: más juntos; en celulares muy angostos (menos de 375 px) se oculta el título "Catálogo" para que entren.
 - Service worker v23.
 
+[8.9] 02-11-2026
+
+- Modo SIMPLE: categorías para llegar rápido sin buscador.
+  - Arriba de los productos, botón grande "📋 Ver categorías". Al deslizar (cuando ese botón ya no se ve), aparece abajo a la izquierda el botón flotante "📋 Categorías" (sube solo si está el pie "Ver pedido").
+  - Los dos abren la lista de todas las categorías a pantalla completa, con letra grande, en el orden del catálogo y con la cantidad de productos de cada una. Un toque y va directo a esa barra de categoría.
+  - Solo en el modo simple (en el modo normal está el buscador).
+- Service worker v24.
+
 
 ---
 
