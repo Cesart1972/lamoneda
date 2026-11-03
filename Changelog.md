@@ -487,6 +487,15 @@ Aca vamos a darle funcionalidad al listado desplegable de candidatos. Al selecio
   - Sin stock: queda el "Próximamente" de siempre. Las ofertas "Solo x hoy" (sello de lacre) no cambian.
 - Service worker v21.
 
+[8.7] 02-11-2026
+
+- Avisarme (archivos nuevos js/avisos.js y css/avisos.css):
+  - En los productos sin stock, dentro del botón "Próximamente", a la derecha, una campanita roja "Avisarme" (se mueve cada tanto para llamar la atención). Tocada queda blanca con borde rojo: "Te aviso". Tocada otra vez, se cancela.
+  - Campanita "Avisos" en el encabezado (antes de Info y Compartir). Cuando un producto que el cliente pidió vuelve a tener stock (al abrir la app con el products-data.js nuevo), aparece el aviso "¡Volvió!" y la campanita muestra el número de avisos sin leer (y se sacude).
+  - Al tocarla se abre la lista de avisos debajo: arriba los de prioridad alta (reingresos, en rosado), después el resto, del más nuevo al más viejo. Cada reingreso con foto, nombre, precio, cuándo, "Ver" (lleva a la tarjeta; si está en un poster, lo abre) y "Agregar". × borra un aviso; "Borrar todos". Al abrirla se dan por leídos (los nuevos quedan marcados con "Nuevo" hasta cerrarla).
+  - Sin servidor: se guarda en el celular del cliente. Los avisos aparecen al abrir la app, no como notificación del teléfono.
+- Service worker v22.
+
 
 ---
 

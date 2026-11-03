@@ -1036,6 +1036,12 @@ function crearTarjetaProducto(product) {
 
     prepararFormasDeCompra(article, product);
     decorarConOferta(article, product, oferta);
+
+    // Sin stock: campanita roja "Avisarme" dentro del botón Próximamente (js/avisos.js)
+    if (!product.inStock && !article.classList.contains("conSello") && typeof crearBotonAvisarme === "function") {
+      addBtn.classList.add("conAvisarme");
+      article.querySelector(".purchaseActions").appendChild(crearBotonAvisarme(product));
+    }
     updateCardControls(article, product, true);
    
     const plusBtn = cardClone.querySelector(".plusBtn");
