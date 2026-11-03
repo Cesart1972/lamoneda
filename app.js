@@ -604,7 +604,14 @@ let fullMatchIds = new Set();
     chipsActivos.length === 0 &&
     FILTROS.every(filtro => activeFilters[filtro.campo] === "ALL");
 
-  const filteredProducts = (listaCompleta ? products : productosVendibles).filter(product => {
+  // Modo simple (js/modo-simple.js): sin posters, todos los productos
+  // sueltos con sus barras de categoría
+  const simple = typeof estaEnModoSimple === "function" && estaEnModoSimple();
+  const base = listaCompleta
+    ? (simple ? products.filter(product => tipoMuestra(product) !== "poster") : products)
+    : productosVendibles;
+
+  const filteredProducts = base.filter(product => {
 
     const matchesSearch = adminMode
       ? (!product.inStock || product.estabaSinStock)
@@ -764,7 +771,7 @@ if (
   // Con la lista completa, las variedades de cada poster se muestran
   // dentro de su desplegable y no se repiten en la lista.
   variedadesPorPoster = new Map();
-  if (listaCompleta) {
+  if (listaCompleta && !simple) {
     const agrupado = agruparVariedades(filteredProducts);
     variedadesPorPoster = agrupado.grupos;
     filteredProducts.splice(0, filteredProducts.length, ...agrupado.lista);

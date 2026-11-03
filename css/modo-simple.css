@@ -1,0 +1,178 @@
+/*====================================================
+  MODO-SIMPLE.CSS
+  Modo SIMPLE (js/modo-simple.js): solo el logo, el botón
+  "Modo SIMPLE", las barras de categoría y los productos,
+  uno por renglón y más grandes.
+====================================================*/
+
+/* ---------------- BOTÓN DEL ENCABEZADO ---------------- */
+
+.btn-simple svg{
+    fill:none;
+}
+
+/* Encendido: pastilla blanca, bien visible, para poder salir */
+.btn-simple.activo{
+    flex-direction:row;
+    gap:6px;
+    padding:8px 14px;
+    border-radius:999px;
+    background:#ffffff;
+    color:var(--color-principal, #F28C00);
+    box-shadow:0 2px 6px rgba(0,0,0,.18);
+}
+
+.btn-simple.activo span{
+    font-size:13px;
+    font-weight:800;
+}
+
+/* Con 4 botones en el encabezado del celular, un poco más juntos */
+@media (max-width:420px){
+    .headerAcciones .btn-header{
+        min-width:44px;
+        padding:2px 2px;
+    }
+    .titleContainer{
+        min-width:0;
+        overflow:hidden;
+        font-size:16px;
+    }
+}
+
+/* Celulares muy angostos: no entra el título junto a los 4 botones */
+@media (max-width:374px){
+    .titleContainer{
+        display:none;
+    }
+}
+
+
+/* ---------------- LO QUE SE SACA ---------------- */
+
+html.modoSimple #btnAvisos,
+html.modoSimple #btnInfo,
+html.modoSimple #btnCompartir,
+html.modoSimple .titleContainer,
+html.modoSimple .ofertasHoy,
+html.modoSimple .toolbar,
+html.modoSimple .chipsBar,
+html.modoSimple .summary,
+html.modoSimple .rellenoHueco,
+html.modoSimple .botonFavorito,
+html.modoSimple .iconosChips,
+html.modoSimple .floatingWhatsApp,
+html.modoSimple .avisosPanel,
+html.modoSimple .formaPista{
+    display:none !important;
+}
+
+/* Sin título, el botón queda a la derecha del logo */
+html.modoSimple .topHeader{
+    justify-content:space-between;
+}
+
+
+/* ---------------- PRODUCTOS: UNO POR RENGLÓN ---------------- */
+
+html.modoSimple .productGrid{
+    grid-template-columns:minmax(0, 1fr);
+    gap:12px;
+}
+
+/* En la computadora, dos por renglón */
+@media (min-width:900px){
+    html.modoSimple .productGrid{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Nada ocupa doble ancho: todos iguales */
+html.modoSimple .productCard.is-featured{
+    grid-column:auto;
+}
+
+/* Tarjeta acostada: la foto a la izquierda, el resto a la derecha */
+html.modoSimple .productCard:not(.posterCard){
+    grid-template-columns:38% minmax(0, 1fr);
+    grid-template-rows:auto;
+    align-items:center;
+}
+
+html.modoSimple .productCard:not(.posterCard) .productImage{
+    height:100%;
+    max-height:220px;
+    border-bottom:0;
+    border-right:1px solid var(--line, #d9e0e6);
+}
+
+html.modoSimple .productCard .productInfo{
+    min-width:0;
+    gap:8px;
+    padding:12px 12px 14px;
+    text-align:left;
+    align-items:stretch;
+}
+
+html.modoSimple .productCard.is-featured .productInfo{
+    display:grid;
+    padding:12px 12px 14px;
+    text-align:left;
+}
+
+html.modoSimple .productCard .name,
+html.modoSimple .productCard.is-featured .name{
+    font-size:1.12rem;
+    font-weight:700;
+    line-height:1.25;
+}
+
+html.modoSimple .productCard .price,
+html.modoSimple .productCard.is-featured .price{
+    font-size:1.5rem;
+}
+
+/* El botón de un solo precio, a lo ancho y más alto */
+html.modoSimple .purchaseActions{
+    height:48px;
+}
+
+html.modoSimple .addBtn,
+html.modoSimple .counterControls{
+    width:100%;
+    height:48px;
+    font-size:1rem;
+}
+
+/* Las dos columnas de precio con sus botones, a lo ancho */
+html.modoSimple .formasConBotones .formaColumnas{
+    max-width:none;
+}
+
+html.modoSimple .formaPrecio{
+    font-size:1.15rem;
+}
+
+html.modoSimple .formaAgregar{
+    min-height:50px;
+}
+
+html.modoSimple .formaAgregarCuanto{
+    font-size:1rem;
+}
+
+/* Oferta "Solo x hoy": el sello va debajo del precio */
+html.modoSimple .productCard.conSello .productInfo{
+    grid-template-columns:1fr;
+    justify-items:start;
+}
+
+html.modoSimple .productCard.conSello .selloZona{
+    --sello:100px;
+    justify-self:center;
+}
+
+/* Barras de categoría un poco más grandes */
+html.modoSimple .catalogoSeparador h2{
+    font-size:1.25rem;
+}

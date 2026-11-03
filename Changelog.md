@@ -496,6 +496,17 @@ Aca vamos a darle funcionalidad al listado desplegable de candidatos. Al selecio
   - Sin servidor: se guarda en el celular del cliente. Los avisos aparecen al abrir la app, no como notificación del teléfono.
 - Service worker v22.
 
+[8.8] 02-11-2026
+
+- Modo SIMPLE (archivos nuevos js/modo-simple.js y css/modo-simple.css), para la gente a la que le cuesta usar la app:
+  - Botón "Simple" en el encabezado, a la izquierda de Avisos. Encendido se ve como pastilla blanca "Modo SIMPLE" y tocándola se vuelve al modo normal. Queda guardado en el celular.
+  - Se saca todo: título, Avisos, Info, Compartir, carrusel de ofertas, buscador, chips, contador de productos, corazones, íconos de chips, mensajes que tapan huecos y el botón flotante de WhatsApp. El cliente solo desliza.
+  - Quedan las barras de categoría y los productos, uno por renglón (dos en la computadora), más grandes: foto a la izquierda, nombre, precios y botones a la derecha. Sin posters: todas las variedades sueltas. Nada va de doble ancho.
+  - Precios en dos columnas con su botón y su step (como en la 8.6), botones más altos. Un solo precio: botón Agregar a lo ancho. "Avisarme" en los sin stock y el sello de lacre en "Solo x hoy" siguen.
+  - El pie "Ver pedido" sigue igual para mandar el pedido.
+- Encabezado del celular con 4 botones: más juntos; en celulares muy angostos (menos de 375 px) se oculta el título "Catálogo" para que entren.
+- Service worker v23.
+
 
 ---
 
@@ -512,7 +523,7 @@ IDEAS PARA FUTURAS MEJORAS (anotadas el 02-11-2026 · todavía no programadas)
 - El botón de enviar pedido pasa a llamarse algo como "Armar nota de pedido": le sirve al cliente para armarse un presupuesto antes de ir a comprar.
 - La nota se la manda el cliente a sí mismo como recordatorio. Después, si quiere, reenvía ese mensaje a alguien de la empresa para que le vaya armando el pedido.
 
-2) Modo SIMPLE (para la gente que no sabe navegar la app)
+2) Modo SIMPLE (para la gente que no sabe navegar la app)  → HECHO en la 8.8
 - Se saca "TODO" de la pantalla. Queda solo el header con el logo y el botón "Modo SIMPLE" activado.
 - Sin barra de búsqueda: el cliente solo scrollea.
 - En el body, solo las barras de categoría y los productos.
