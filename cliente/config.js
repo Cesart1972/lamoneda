@@ -24,7 +24,7 @@ const CLIENTE = {
     nombreCorto: "La Moneda",          // nombre debajo del ícono en el celular
     tituloCatalogo: "Catálogo",
     slogan: "Líderes en precios bajos",
-    descripcion: "Catálogo digital",
+    descripcion: "Supermercado mayorista online en Chivilcoy. Precio mayorista llevando 1 unidad y envío gratis en el día.",
     logo: "imagenes/La-Moneda-logo-removebg.webp",
     favicon: "imagenes/La-Moneda-logo.webp",
     idioma: "es-AR",
