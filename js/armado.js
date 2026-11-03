@@ -20,7 +20,9 @@
    5. Como es el carrito, podés cerrar la hoja y seguir agregando
       productos desde el catálogo (lo que el cliente se olvidó).
    6. "Enviar al cliente" arma el ticket final con los faltantes, el
-      alias y el aviso de entrega, y abre el menú de compartir.
+      alias y el aviso de entrega, abre el menú de compartir y da el
+      pedido por terminado (queda todo listo para el próximo).
+      "Descartar" tira un pedido sin mandarlo.
 
    Precios: siempre los de la app (si el cliente editó el mensaje, no
    importa). Si el ticket dice "🔥 Oferta 02/11" y ese día el producto
@@ -458,24 +460,29 @@ function guardarArmado() {
     return texto;
   }
 
+  // Enviar = pedido terminado: se vacía el armado y el carrito, listo
+  // para el próximo. Si se cierra el menú sin elegir chat, no se termina
+  // (el ticket queda copiado y el pedido sigue armado).
   async function enviarAlCliente() {
     const texto = textoTicket();
     if (navigator.clipboard?.writeText) navigator.clipboard.writeText(texto).catch(() => {});
     if (navigator.share) {
       try {
         await navigator.share({ text: texto });
+        terminar(true);
         return;
       } catch (error) {
         if (error && error.name === "AbortError") {
-          mostrarAvisoCarrito(["El ticket quedó copiado. Pegalo en el chat del cliente."], "Ticket copiado");
+          mostrarAvisoCarrito(["No se envió. El ticket quedó copiado y el pedido sigue armado."], "Ticket copiado");
           return;
         }
       }
     }
     window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, "_blank", "noopener,noreferrer");
+    terminar(true);
   }
 
-  function terminar() {
+  function terminar(enviado) {
     armado = null;
     guardarArmado();
     Object.keys(cart).forEach(id => quitarDelCarrito(id));
@@ -484,6 +491,9 @@ function guardarArmado() {
     updateCheckoutUI();
     handleFilterPipeline();
     cerrar();
+    if (enviado) {
+      mostrarAvisoCarrito(["El ticket quedó copiado por si lo necesitás. Listo para armar el próximo."], "✓ Pedido enviado");
+    }
   }
 
 
@@ -579,10 +589,11 @@ function guardarArmado() {
     const fila = nodo("div", "armadoBotones");
     fila.appendChild(boton("armadoSecundario", "＋ Agregar productos", cerrar));
     fila.appendChild(botonLista());
+    // Solo para tirar un pedido sin mandarlo (ej. se pegó el mensaje equivocado)
     fila.appendChild(boton("armadoSecundario armadoTerminar",
-      confirmando === "terminar" ? "¿Seguro? Tocá de nuevo" : "Terminar pedido",
+      confirmando === "terminar" ? "¿Seguro? Tocá de nuevo" : "Descartar",
       () => {
-        if (confirmando === "terminar") terminar();
+        if (confirmando === "terminar") terminar(false);
         else { confirmando = "terminar"; dibujar(); }
       }));
     pie.appendChild(fila);
