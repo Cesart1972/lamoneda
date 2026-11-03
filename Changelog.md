@@ -479,6 +479,14 @@ Aca vamos a darle funcionalidad al listado desplegable de candidatos. Al selecio
 - Se saca "Terminar pedido". En su lugar, "Descartar" (con doble toque), solo para tirar un pedido sin mandarlo (ej. se pegó el mensaje equivocado).
 - Ticket del pedido armado: junto al alias va el titular de la cuenta: "el alias es *cesarmompo.mp* (a nombre de Cesar Alfredo Mompo)". Sale de cliente/config.js → pedido.titular (nuevo); si está vacío, no se muestra.
 
+[8.6] 02-11-2026
+
+- Tarjeta con dos formas de compra (unidad y bulto/caja): se saca el interruptor "Unidad | Bulto" y el botón Agregar único, que hacían falta 2 toques para comprar el bulto (y la gente compraba 1 unidad creyendo que era 1 bulto).
+  - Ahora dos columnas con la misma importancia, cada una con su precio c/u, su condición ("por unidad", "por bulto 10u", "desde 6u"), lo que vale el bulto y su propio botón igual al otro: "Agregar 1 u." y "Agregar 1 bulto" (con el step de cada forma). El % de ahorro va en la esquina de la columna del bulto.
+  - Con el producto en el pedido, la columna elegida queda marcada con "✓ En el pedido" y abajo aparece el − cantidad + de siempre. El botón de la otra columna dice "Cambiar a 1 bulto" / "Cambiar a 1 u." (de bulto a unidad sigue preguntando "¿Querés comprar menos de 1 bulto?").
+  - Sin stock: queda el "Próximamente" de siempre. Las ofertas "Solo x hoy" (sello de lacre) no cambian.
+- Service worker v21.
+
 
 ---
 

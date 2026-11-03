@@ -1286,10 +1286,20 @@ function elemento(etiqueta, clase, texto) {
 // Agrega a la tarjeta las formas de compra.
 // Los productos con un solo precio por unidad quedan como siempre.
 //
-//   [ Unidad │ Caja ]          ← interruptor
-//   $799 c/u    $719 c/u       ← columnas (la de caja en rojo)
-//   por unidad  por caja 12u
-//   Estás ahorrando 10%...     ← solo con la forma 2 elegida
+// Con dos formas (unidad y bulto/caja), dos columnas con la misma
+// importancia, cada una con su precio y su botón (con su step):
+//
+//   $799 c/u        $719 c/u  -10%
+//   por unidad      por bulto 10u
+//   [ Agregar ]     [ Agregar ]
+//   [  1 u.   ]     [ 1 bulto ]
+//
+// Así se compra el bulto con un solo toque (antes había que elegir
+// "Bulto" en el interruptor y después tocar Agregar, y la gente
+// compraba 1 unidad creyendo que compraba 1 bulto).
+// Con el producto en el pedido, la columna elegida se marca y abajo
+// aparece el − cantidad + de siempre. Tocando el botón de la otra
+// columna se cambia de forma.
 function prepararFormasDeCompra(article, product) {
   const formas = formasDeCompra(product);
   if (formas.length === 1 && !formaConMedida(formas[0])) return;
@@ -1306,33 +1316,16 @@ function prepararFormasDeCompra(article, product) {
     return;
   }
 
-  article.classList.add("dosFormas");
+  article.classList.add("dosFormas", "formasConBotones");
   const mismoPrecio = formas[1].mismoPrecio;
   if (mismoPrecio) article.classList.add("mismoPrecio");
-
-  const selector = elemento("div", "formaSelector");
-  selector.setAttribute("role", "group");
-  selector.setAttribute("aria-label", "Forma de compra");
-  selector.appendChild(elemento("span", "formaPastilla"));
+  if (!product.inStock) article.classList.add("sinStock");
 
   const columnas = elemento("div", "formaColumnas");
 
   formas.forEach(forma => {
-    const boton = elemento("button", "");
-    boton.appendChild(elemento("span", "formaBotonTexto", forma.corta));
-    // Badge "8%" en el botón de la forma 2 (se oculta al elegirla)
-    if (forma.numero === 2 && forma.ahorro > 0) {
-      boton.appendChild(elemento("span", "badgeAhorro badgeBoton", `${forma.ahorro}%`));
-    }
-    boton.type = "button";
-    boton.dataset.forma = String(forma.numero);
-    boton.title = forma.etiqueta;
-    boton.onclick = () => elegirFormaDeCompra(article, product, forma.numero);
-    selector.appendChild(boton);
-
-    // Columna: precio, texto y (con el producto en el carrito) el subtotal
-    const columna = elemento("button", "formaColumna");
-    columna.type = "button";
+    // Columna: precio, texto, lo que vale el bulto y su botón
+    const columna = elemento("div", "formaColumna");
     columna.dataset.forma = String(forma.numero);
     const subtotal = elemento("span", "formaSubtotal");
     subtotal.hidden = true;
@@ -1341,26 +1334,52 @@ function prepararFormasDeCompra(article, product) {
       elemento("span", "formaTexto", forma.columna),
       subtotal
     );
-    if (forma.numero === 2) columna.classList.add("tentador");
-    columna.onclick = () => elegirFormaDeCompra(article, product, forma.numero);
+    if (forma.numero === 2) {
+      columna.classList.add("tentador");
+      if (forma.ahorro > 0) columna.appendChild(elemento("span", "badgeAhorro badgeColumna", `-${forma.ahorro}%`));
+    }
+
+    // "Agregar" + lo que suma ese toque ("1 u.", "x2 u.", "1 bulto", "5 cajas")
+    const boton = elemento("button", "formaAgregar");
+    boton.type = "button";
+    boton.dataset.forma = String(forma.numero);
+    const cuanto = textoPasoDeForma(forma);
+    boton.append(elemento("span", "formaAgregarAccion", "Agregar"), elemento("strong", "formaAgregarCuanto", cuanto));
+    boton.setAttribute("aria-label", `Agregar ${cuanto} de ${product.name} a ${formatter.format(forma.precioUnitario)} c/u`);
+    boton.disabled = !product.inStock;
+    boton.onclick = () => tocarAgregarForma(article, product, forma.numero);
+    columna.append(boton, elemento("span", "formaEnPedido", "✓ En el pedido"));
+
     columnas.appendChild(columna);
   });
 
   const pista = elemento("p", "formaPista");
-  precio.before(selector);
-
-  if (mismoPrecio) {
-    // Mismo precio: un solo precio centrado debajo del interruptor
-    precio.after(detalle);
-    detalle.after(pista);
-  } else {
-    precio.hidden = true;
-    precio.after(columnas);
-    columnas.after(pista);
-  }
+  precio.hidden = true;
+  precio.after(columnas);
+  columnas.after(pista);
   pista.after(crearPreguntaMenos(article, product));
 
   actualizarFormasDeCompra(article, product, false);
+}
+
+// Lo que agrega el primer toque de una forma: "1 u.", "2 u.", "1 bulto", "20 cajas"
+function textoPasoDeForma(forma) {
+  const unidades = unidadesMinimas(forma);
+  return formaConMedida(forma) ? textoCantidad(forma, unidades) : `${unidades} u.`;
+}
+
+// Botón de una columna: si no está en el pedido lo agrega de esa forma;
+// si ya está de la otra forma, cambia (con la pregunta de siempre al pasar
+// de bulto a unidad)
+function tocarAgregarForma(article, product, numeroForma) {
+  if (!product.inStock) return;
+  const id = idProducto(product);
+  if (!cart[id]) {
+    agregarAlCarrito(product, numeroForma);
+    despuesDeCambiarCarrito(article, product, false);
+    return;
+  }
+  elegirFormaDeCompra(article, product, numeroForma);
 }
 
 // "¿Querés comprar menos de 1 caja?" dentro de la tarjeta
@@ -1478,47 +1497,36 @@ function actualizarFormasDeCompra(article, product, animar) {
     return;
   }
 
-  // ---- Dos formas ----
-  const selector = article.querySelector(".formaSelector");
-  selector.dataset.forma = String(forma.numero);
-  selector.querySelectorAll("button").forEach(boton => {
-    boton.setAttribute("aria-pressed", String(Number(boton.dataset.forma) === forma.numero));
+  // ---- Dos formas: dos columnas, cada una con su botón ----
+  article.classList.toggle("enCarrito", Boolean(enCarrito));
+  article.querySelectorAll(".formaColumna").forEach(columna => {
+    const numero = Number(columna.dataset.forma);
+    // Marcada solo la forma que está en el pedido
+    const esActual = Boolean(enCarrito) && numero === forma.numero;
+    columna.querySelector(".formaPrecio").replaceChildren(precioDeForma(formas[numero - 1]));
+    columna.classList.toggle("activa", esActual);
+
+    // Siempre: cuánto vale una caja/bulto/pallet completo ("$26.388")
+    const subtotal = columna.querySelector(".formaSubtotal");
+    const textoMedida = precioDeLaMedida(formas[numero - 1], formas[1].mismoPrecio);
+    subtotal.textContent = textoMedida;
+    subtotal.hidden = !textoMedida;
+
+    // El botón de la forma que ya está en el pedido no hace falta (está el − +)
+    const boton = columna.querySelector(".formaAgregar");
+    if (boton) {
+      boton.hidden = esActual;
+      boton.querySelector(".formaAgregarAccion").textContent = enCarrito ? "Cambiar a" : "Agregar";
+    }
+
+    if (animar && esActual) {
+      columna.classList.remove("cambiando");
+      void columna.offsetWidth;
+      columna.classList.add("cambiando");
+    }
   });
 
-  if (formas[1].mismoPrecio) {
-    // Un solo precio centrado y debajo, siempre, cuánto vale una caja
-    article.querySelector(".price").replaceChildren(precioDeForma(forma));
-    const textoMedida = precioDeLaMedida(formas[1], true);
-    detalle.textContent = textoMedida;
-    detalle.hidden = !textoMedida;
-  } else {
-    article.querySelectorAll(".formaColumna").forEach(columna => {
-      const numero = Number(columna.dataset.forma);
-      const esActual = numero === forma.numero;
-      columna.querySelector(".formaPrecio").replaceChildren(precioDeForma(formas[numero - 1]));
-      columna.classList.toggle("activa", esActual);
-      columna.setAttribute("aria-pressed", String(esActual));
-
-      // Subtotal ("12 u. · $26.388") debajo de la forma que está en el carrito
-      // Siempre: cuánto vale una caja/bulto/pallet completo ("$26.388")
-      const subtotal = columna.querySelector(".formaSubtotal");
-      const textoMedida = precioDeLaMedida(formas[numero - 1], false);
-      subtotal.textContent = textoMedida;
-      subtotal.hidden = !textoMedida;
-
-      if (animar && esActual) {
-        columna.classList.remove("cambiando");
-        void columna.offsetWidth;
-        columna.classList.add("cambiando");
-      }
-    });
-  }
-
-  // Badge "8%" en el botón de la caja mientras no esté elegida.
-  // Al elegirla, el badge se va y aparece "Estás ahorrando 8% frente a unidad".
   const [forma1, forma2] = formas;
-  const badge = selector.querySelector(".badgeBoton");
-  if (badge) badge.hidden = forma.numero === 2;
 
   const pista = article.querySelector(".formaPista");
   if (forma.numero === 2 && forma2.ahorro > 0) {
@@ -2027,6 +2035,10 @@ function ordenarSinStockAlFinal(lista, porCategoria = false) {
 
 function updateCardControls(article, product, instant = false) {
   if (article.classList.contains("conSello")) actualizarSello(article, product);
+  // Dos formas con botones: el − + aparece recién con el producto en el pedido
+  if (article.classList.contains("formasConBotones")) {
+    article.classList.toggle("enCarrito", Boolean(cart[idProducto(product)]));
+  }
   const addBtn = article.querySelector(".addBtn");
   const counterControls = article.querySelector(".counterControls");
   const quantityValue = article.querySelector(".quantityValue");

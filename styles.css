@@ -2112,3 +2112,181 @@ body {
 .floatingWhatsApp {
   bottom: calc(18px + env(safe-area-inset-bottom, 0px));
 }
+
+
+/* =========================================================
+   DOS FORMAS DE COMPRA CON SUS BOTONES (app.js → prepararFormasDeCompra)
+   Unidad y bulto/caja con la misma importancia: cada columna con su
+   precio y su botón "Agregar" con el step ("1 u.", "1 bulto"). Un solo
+   toque para comprar el bulto. Con el producto en el pedido, la columna
+   elegida se marca y abajo aparece el − cantidad + de siempre.
+   ========================================================= */
+
+.formasConBotones .formaColumnas {
+  gap: 8px;
+  max-width: 340px;
+  margin-top: 0;
+}
+
+.formasConBotones .formaColumna {
+  position: relative;
+  justify-content: flex-start;
+  gap: 2px;
+  padding: 8px 4px 6px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: #ffffff;
+  cursor: default;
+}
+
+.formasConBotones .formaColumna.activa {
+  border-color: var(--accent);
+  background: #eef7f5;
+  box-shadow: 0 0 0 1.5px var(--accent);
+}
+
+/* % de ahorro en la esquina de la columna del bulto */
+.badgeColumna {
+  position: absolute;
+  top: -9px;
+  right: -4px;
+  padding: 1px 6px;
+  font-size: 0.72rem;
+  box-shadow: 0 2px 5px rgba(225, 29, 72, 0.35);
+}
+
+/* Los dos botones iguales: mismo color, mismo tamaño */
+.formaAgregar {
+  --tono: var(--accent, #0f766e);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 46px;
+  margin-top: auto;
+  padding: 5px 4px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--tono);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--tono) 78%, #ffffff), var(--tono));
+  box-shadow:
+    inset 0 1px 0 #ffffff59,
+    inset 0 -2px 0 #00000033,
+    0 1px 2px #00000066,
+    0 8px 20px -8px color-mix(in srgb, var(--tono) 60%, transparent);
+  color: #ffffff;
+  font: inherit;
+  line-height: 1.1;
+  cursor: pointer;
+  transition: translate .08s ease, box-shadow .12s ease;
+}
+
+.formaColumna .formaAgregar,
+.formaEnPedido {
+  margin-top: auto;     /* los dos botones quedan a la misma altura */
+}
+
+.formasConBotones .formaColumna {
+  padding-bottom: 6px;
+}
+
+.formasConBotones .formaColumna > .formaSubtotal {
+  margin-bottom: 6px;
+}
+
+.formasConBotones .formaColumna > .formaTexto:nth-last-child(2) {
+  margin-bottom: 6px;
+}
+
+/* Columna que está en el pedido: en lugar del botón, "✓ En el pedido" */
+.formaEnPedido {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  color: var(--accent-strong);
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.formaColumna.activa .formaEnPedido {
+  display: flex;
+}
+
+.formaAgregar:hover {
+  --tono: var(--accent-strong, #0b5f59);
+}
+
+.formaAgregar:active {
+  translate: 0 1px;
+  box-shadow: inset 0 2px 4px #00000044;
+}
+
+.formaAgregar[hidden] {
+  display: none;
+}
+
+.formaAgregar:disabled {
+  background: var(--line);
+  box-shadow: none;
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.formaAgregarAccion {
+  font-size: 0.72rem;
+  font-weight: 600;
+  opacity: 0.92;
+}
+
+.formaAgregarCuanto {
+  font-size: 0.98rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* El botón "Agregar" de siempre no va: lo reemplazan los de las columnas.
+   El − cantidad + aparece recién con el producto en el pedido. */
+.formasConBotones:not(.sinStock) .addBtn {
+  display: none !important;
+}
+
+.formasConBotones:not(.enCarrito):not(.sinStock) .purchaseActions {
+  display: none;
+}
+
+/* Sin stock: queda el "Próximamente" de siempre */
+.formasConBotones.sinStock .formaAgregar {
+  display: none;
+}
+
+/* Mismo precio por unidad y por caja: igual en dos columnas */
+.formasConBotones.mismoPrecio .price {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .formasConBotones .formaColumnas {
+    gap: 6px;
+  }
+
+  .formaAgregar {
+    min-height: 44px;
+  }
+
+  .formaAgregarAccion {
+    font-size: 0.66rem;
+  }
+
+  .formaAgregarCuanto {
+    font-size: 0.86rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .formaAgregar {
+    transition: none;
+  }
+}
