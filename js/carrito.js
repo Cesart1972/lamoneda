@@ -105,6 +105,7 @@
     if (!hoja) construirHoja();
     clearTimeout(temporizadorCierre);
     dibujarHoja();
+    if (window.analitica) window.analitica.pedidoAbierto();   // js/analitica.js
     hoja.hidden = false;
     document.body.classList.add("pedidoAbierto");
     // En el cuadro siguiente, para que el navegador anime el cambio
@@ -260,6 +261,9 @@
 
     updateWhatsAppLink();
     window.open(globalWhatsAppUrl, "_blank", "noopener,noreferrer");
+
+    // Meta y Google cuentan el pedido con su total (js/analitica.js)
+    if (window.analitica) window.analitica.pedidoEnviado();
 
     // Lo que compró queda como favorito para la próxima (js/favoritos.js)
     if (typeof agregarAFavoritos === "function") agregarAFavoritos(Object.keys(cart));

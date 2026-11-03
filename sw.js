@@ -21,7 +21,7 @@
    PRECACHE_URLS.
    ========================================================= */
 
-const CACHE_VERSION = "v24";
+const CACHE_VERSION = "v25";
 const CACHE_APP = `app-${CACHE_VERSION}`;
 const CACHE_IMAGES = `imagenes-${CACHE_VERSION}`;
 
@@ -49,6 +49,7 @@ const PRECACHE_URLS = [
   "js/avisos.js",
   "css/avisos.css",
   "js/modo-simple.js",
+  "js/analitica.js",
   "css/modo-simple.css",
   "css/redes.css",
   "js/favoritos.js",
@@ -134,6 +135,9 @@ self.addEventListener("fetch", (event) => {
   if (url.protocol !== "http:" && url.protocol !== "https:") return;
 
   const mismoOrigen = url.origin === self.location.origin;
+
+  // Meta y Google Analytics van siempre directo a la red (no se guardan)
+  if (/(^|\.)(facebook\.net|facebook\.com|googletagmanager\.com|google-analytics\.com|analytics\.google\.com)$/.test(url.hostname)) return;
 
   if (mismoOrigen && esCodigoODatos(request, url)) {
     event.respondWith(redPrimero(event, request));

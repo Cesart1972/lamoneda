@@ -515,6 +515,16 @@ Aca vamos a darle funcionalidad al listado desplegable de candidatos. Al selecio
   - Solo en el modo simple (en el modo normal está el buscador).
 - Service worker v24.
 
+[9.0] 03-11-2026
+
+- Píxel de Meta y Google Analytics 4 (archivo nuevo js/analitica.js).
+  - Los números van en cliente/config.js → medicion (metaPixelId y googleAnalyticsId). Vacío = no se carga. Cada distribuidora pone los suyos.
+  - Eventos (Meta / Google): entrada a la app (PageView / page_view), búsqueda de 3 letras o más (Search / search), agregar un producto desde cualquier lado (AddToCart / add_to_cart, con precio), abrir "Ver pedido" (InitiateCheckout / begin_checkout), mandar el pedido por WhatsApp (Purchase / purchase, con productos y total en ARS) y botón flotante de WhatsApp (Contact / contact).
+  - No se mide en la computadora de desarrollo (localhost), mientras se arma un pedido con "order", ni las palabras reservadas.
+  - Palabra reservada nueva "nomedir": deja de contar ese celular (para no contar tus propias pruebas). Escribiéndola otra vez vuelve a contar.
+  - El service worker deja pasar directo a Meta y Google (no los guarda).
+- Service worker v25.
+
 
 ---
 

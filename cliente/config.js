@@ -55,6 +55,23 @@ const CLIENTE = {
   },
 
 
+  /* ---------------- MEDICIÓN (Meta y Google) ---------------- */
+  // Vacío ("") = ese servicio no se carga. Ver js/analitica.js.
+
+  medicion: {
+    // Píxel de Meta: Administrador de eventos → Orígenes de datos →
+    // tu píxel → "Identificador" (solo números, ej. "1234567890123456")
+    metaPixelId: "1789598592331948",
+
+    // Google Analytics 4: Administrar → Flujos de datos → Web →
+    // "ID de medición" (empieza con G-, ej. "G-ABC123XYZ9")
+    googleAnalyticsId: "G-CH850V5FJP",
+
+    // Moneda de los valores que se mandan (pedidos y productos)
+    moneda: "ARS"
+  },
+
+
   /* ---------------- CONDICIONES DEL PEDIDO ---------------- */
 
   pedido: {
@@ -92,7 +109,11 @@ const CLIENTE = {
 
     // Abre "Armar pedido": pegás el pedido que mandó el cliente por
     // WhatsApp y lo armás con el stock real (js/armado.js)
-    armar: "order"
+    armar: "order",
+
+    // Deja de contar este celular en Meta y Google (para que tus
+    // propias visitas y pruebas no se mezclen). Otra vez = vuelve a contar.
+    noMedir: "nomedir"
   },
 
 
