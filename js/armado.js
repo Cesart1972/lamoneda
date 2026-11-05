@@ -320,6 +320,7 @@ function guardarArmado() {
   function alternarHecho(id) {
     const linea = lineaDe(id);
     linea.hecho = !linea.hecho;
+    abiertas.delete(id);   // al marcarlo HECHO se achica (queda solo el nombre)
     guardarArmado();
     dibujar();
   }
@@ -506,7 +507,27 @@ function guardarArmado() {
   /* ---------------- PANTALLA ---------------- */
 
   let velo = null;
-  let confirmando = "";   // "terminar" o "vaciar": segundo toque para confirmar
+  let confirmando = "";   // "terminar", "vaciar" o "enviar": segundo toque para confirmar
+  const abiertas = new Set();   // productos HECHO que se abrieron para corregir algo
+
+  function pendientes() {
+    return idsEnOrden().filter(id => !lineaDe(id).hecho);
+  }
+
+  // Antes de mandar el ticket: todos los productos tienen que estar HECHO.
+  // Si falta alguno se marcan en rojo y hay que tocar otra vez para mandar igual.
+  function tocarEnviar() {
+    const faltan = pendientes();
+    if (faltan.length === 0 || confirmando === "enviar") {
+      confirmando = "";
+      enviarAlCliente();
+      return;
+    }
+    confirmando = "enviar";
+    dibujar();
+    const primera = velo && velo.querySelector(".armadoFila.pendiente");
+    if (primera) primera.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
 
   function construir() {
     velo = nodo("div", "armadoVelo");
@@ -533,6 +554,7 @@ function guardarArmado() {
   function abrir() {
     if (!velo) construir();
     confirmando = "";
+    abiertas.clear();
     dibujar();
     velo.hidden = false;
     document.body.classList.add("pedidoAbierto");
@@ -571,6 +593,8 @@ function guardarArmado() {
     // Resumen
     const ids = idsEnOrden();
     const hechos = ids.filter(id => lineaDe(id).hecho).length;
+    const faltan = ids.length - hechos;
+    if (confirmando === "enviar" && faltan === 0) confirmando = "";
     cuerpo.appendChild(nodo("p", "armadoResumen",
       `${ids.length} productos · ${hechos} hechos · cargado ${new Date(armado.inicio).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })}`));
 
@@ -590,7 +614,13 @@ function guardarArmado() {
     total.append(nodo("span", "", "Total"), nodo("strong", "", formatter.format(roundToHundreds(totalArmado()))));
     pie.appendChild(total);
 
-    pie.appendChild(boton("armadoEnviar", "Enviar al cliente", enviarAlCliente));
+    if (confirmando === "enviar") {
+      pie.appendChild(nodo("p", "armadoFaltanHecho",
+        `⚠️ ${faltan === 1 ? "Falta 1 producto" : `Faltan ${faltan} productos`} sin marcar HECHO (en rojo).`));
+    }
+    pie.appendChild(boton(`armadoEnviar${confirmando === "enviar" ? " igual" : ""}`,
+      confirmando === "enviar" ? "Enviar igual (tocá de nuevo)" : "Enviar al cliente",
+      tocarEnviar));
 
     const fila = nodo("div", "armadoBotones");
     fila.appendChild(boton("armadoSecundario", "＋ Agregar productos", cerrar));
@@ -669,6 +699,20 @@ function guardarArmado() {
     const fila = nodo("li", "armadoFila");
     if (linea.hecho) fila.classList.add("hecho");
     if (linea.estado) fila.classList.add(`estado-${linea.estado}`);
+    if (!linea.hecho && confirmando === "enviar") fila.classList.add("pendiente");
+
+    // HECHO: solo el nombre. Tocándolo se abre para corregir algo.
+    if (linea.hecho && !abiertas.has(id)) {
+      fila.classList.add("cerrada");
+      const abrirFila = boton("armadoFilaAbrir", "", () => {
+        abiertas.add(id);
+        dibujar();
+      });
+      abrirFila.append(nodo("span", "armadoCheck", "✓"), nodo("span", "armadoNombre", product.name));
+      abrirFila.setAttribute("aria-label", `${product.name}: hecho. Tocá para ver o corregir`);
+      fila.appendChild(abrirFila);
+      return fila;
+    }
 
     const foto = nodo("img", "armadoFoto");
     foto.src = product.image || categoryImage(product.category);
@@ -680,7 +724,17 @@ function guardarArmado() {
     };
 
     const info = nodo("div", "armadoInfo");
-    info.appendChild(nodo("span", "armadoNombre", product.name));
+    const nombre = nodo("span", "armadoNombre", product.name);
+    if (linea.hecho) {
+      // Abierta para corregir: tocando el nombre se vuelve a achicar
+      nombre.classList.add("tocable");
+      nombre.title = "Tocá para achicar";
+      nombre.onclick = () => {
+        abiertas.delete(id);
+        dibujar();
+      };
+    }
+    info.appendChild(nombre);
     const pidio = linea.pedidas !== null
       ? `Pidió ${textoUnidades(linea, linea.pedidas)}${linea.medida && linea.porPaso > 1 ? ` (${linea.pedidas} u.)` : ""}`
       : "Agregado";

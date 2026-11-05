@@ -151,8 +151,83 @@
 }
 
 .armadoFila.hecho{
-    background:#dcfce7;
-    border-color:#86efac;
+    background:#bbf7d0;
+    border-color:#16a34a;
+}
+
+/* HECHO y achicada: solo el nombre, verde fuerte */
+.armadoFila.cerrada{
+    display:block;
+    padding:0;
+    border:0;
+    background:#16a34a;
+    overflow:hidden;
+}
+
+.armadoFilaAbrir{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    width:100%;
+    min-height:46px;
+    padding:8px 14px;
+    border:0;
+    background:none;
+    color:#ffffff;
+    font:inherit;
+    font-size:.95rem;
+    font-weight:700;
+    text-align:left;
+    cursor:pointer;
+}
+
+.armadoFilaAbrir .armadoNombre{
+    min-width:0;
+    color:inherit;
+}
+
+.armadoCheck{
+    flex:0 0 auto;
+    display:grid;
+    place-items:center;
+    width:24px;
+    height:24px;
+    border-radius:50%;
+    background:#ffffff;
+    color:#16a34a;
+    font-size:.9rem;
+    font-weight:900;
+}
+
+.armadoFila.cerrada.estado-sinstock{
+    box-shadow:inset 5px 0 0 #e11d48;
+}
+
+.armadoFila.cerrada.estado-critico{
+    box-shadow:inset 5px 0 0 #f59e0b;
+}
+
+.armadoNombre.tocable{
+    cursor:pointer;
+    text-decoration:underline dotted;
+}
+
+/* Falta marcar HECHO al querer enviar */
+.armadoFila.pendiente{
+    border:2px solid #e11d48;
+    background:#fff1f2;
+    animation:armadoPendiente 1s ease-in-out 2;
+}
+
+@keyframes armadoPendiente{
+    50%{box-shadow:0 0 0 4px rgba(225,29,72,.25)}
+}
+
+.armadoFaltanHecho{
+    margin:0;
+    color:#be123c;
+    font-size:.9rem;
+    font-weight:800;
 }
 
 .armadoFila.estado-sinstock{
@@ -331,6 +406,10 @@
     font-size:1.05rem;
     font-weight:800;
     cursor:pointer;
+}
+
+.armadoEnviar.igual{
+    background:#e11d48;
 }
 
 .armadoBotones{

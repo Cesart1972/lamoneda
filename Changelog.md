@@ -525,6 +525,14 @@ Aca vamos a darle funcionalidad al listado desplegable de candidatos. Al selecio
   - El service worker deja pasar directo a Meta y Google (no los guarda).
 - Service worker v25.
 
+[9.1] 05-11-2026
+
+- Armar pedido ("order"):
+  - Producto marcado HECHO: se achica a una barra verde fuerte con ✓ y solo el nombre (sin foto, precios ni contadores). Tocándola se abre para corregir algo; tocando el nombre (o sacándole el HECHO) se vuelve a achicar. Si tiene CRÍTICO o SIN STOCK se ve una rayita amarilla o roja a la izquierda.
+  - Al tocar "Enviar al cliente" se revisa que todos estén HECHO. Si falta alguno: quedan marcados en rojo, la lista va al primero y aparece "⚠️ Faltan N productos sin marcar HECHO". El botón pasa a rojo "Enviar igual (tocá de nuevo)": un segundo toque lo manda igual. Al marcar el último HECHO vuelve a "Enviar al cliente".
+- Lista de compras en cualquier dispositivo: queda para el back-end (Supabase).
+- Service worker v26.
+
 
 ---
 
