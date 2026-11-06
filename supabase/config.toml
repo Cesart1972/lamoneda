@@ -1,0 +1,8 @@
+# Configuración para la CLI de Supabase (opcional).
+# Estas dos funciones las llama la app ANTES de que el cliente tenga sesión:
+# no exigen token de usuario (controlan todo adentro).
+[functions.registro-cliente]
+verify_jwt = false
+
+[functions.reset-clave]
+verify_jwt = false
