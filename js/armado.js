@@ -317,12 +317,60 @@ function guardarArmado() {
     dibujar();
   }
 
+  // Al marcar HECHO la fila se achica con una transición suave:
+  //   1. lo de adentro se desvanece y la fila se pone verde fuerte
+  //   2. la fila baja de alto hasta quedar como barra con el nombre
+  // Al sacarle el HECHO se redibuja al instante (no hace falta animar).
+  const DURACION_DESVANECER = 160;   // ms
+  const DURACION_ACHICAR = 340;      // ms
+  let animando = false;
+
+  function sinMovimiento() {
+    return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+
+  function filaDe(id) {
+    return velo ? velo.querySelector(`.armadoFila[data-id="${CSS.escape(String(id))}"]`) : null;
+  }
+
   function alternarHecho(id) {
+    if (animando) return;
     const linea = lineaDe(id);
     linea.hecho = !linea.hecho;
     abiertas.delete(id);   // al marcarlo HECHO se achica (queda solo el nombre)
     guardarArmado();
-    dibujar();
+
+    const fila = filaDe(id);
+    if (!linea.hecho || !fila || sinMovimiento() || typeof fila.animate !== "function") {
+      dibujar();
+      return;
+    }
+
+    animando = true;
+    const altoAntes = fila.offsetHeight;
+    fila.classList.add("cerrandose");
+
+    setTimeout(() => {
+      dibujar();
+      const nueva = filaDe(id);
+      if (!nueva) {
+        animando = false;
+        return;
+      }
+      const altoDespues = nueva.offsetHeight;
+      const achicar = nueva.animate(
+        [{ height: `${altoAntes}px` }, { height: `${altoDespues}px` }],
+        { duration: DURACION_ACHICAR, easing: "cubic-bezier(.33,1,.68,1)" }
+      );
+      const boton = nueva.querySelector(".armadoFilaAbrir");
+      if (boton) {
+        boton.animate(
+          [{ opacity: 0, transform: "translateY(-4px)" }, { opacity: 1, transform: "none" }],
+          { duration: DURACION_ACHICAR, delay: DURACION_ACHICAR * 0.35, easing: "ease-out", fill: "backwards" }
+        );
+      }
+      achicar.onfinish = achicar.oncancel = () => { animando = false; };
+    }, DURACION_DESVANECER);
   }
 
   function quitarAgregado(id) {
@@ -509,6 +557,45 @@ function guardarArmado() {
   let velo = null;
   let confirmando = "";   // "terminar", "vaciar" o "enviar": segundo toque para confirmar
   const abiertas = new Set();   // productos HECHO que se abrieron para corregir algo
+  // Productos sin HECHO la última vez que se dibujó la hoja (null = recién abierta).
+  // Sirve para avisar una sola vez cuando se marca el último HECHO.
+  let faltabanAntes = null;
+  let recienCompleto = false;   // el botón Enviar late una vez al pasar a verde
+
+  // Cartel "Pedido armado completo" encima de la hoja
+  function mostrarCompleto() {
+    if (!velo || velo.hidden) return;
+    const hoja = velo.querySelector(".armadoHoja");
+    const anterior = hoja.querySelector(".armadoCompleto");
+    if (anterior) anterior.remove();
+
+    const cartel = nodo("div", "armadoCompleto");
+    cartel.setAttribute("role", "alertdialog");
+    cartel.setAttribute("aria-modal", "true");
+    cartel.setAttribute("aria-labelledby", "armadoCompletoTitulo");
+    const caja = nodo("div", "armadoCompletoCaja");
+    caja.appendChild(nodo("div", "armadoCompletoIcono", "✓"));
+    const titulo = nodo("h3", "", "¡Pedido armado completo!");
+    titulo.id = "armadoCompletoTitulo";
+    caja.appendChild(titulo);
+    caja.appendChild(nodo("p", "", "Todos los productos están marcados HECHO. Ya podés enviarle el ticket al cliente."));
+    const cerrarCartel = () => {
+      cartel.classList.remove("visible");
+      setTimeout(() => cartel.remove(), 220);
+      const enviar = velo.querySelector(".armadoEnviar");
+      if (enviar) enviar.focus({ preventScroll: true });
+    };
+    const ok = boton("armadoCompletoBoton", "Entendido", cerrarCartel);
+    caja.appendChild(ok);
+    cartel.appendChild(caja);
+    cartel.addEventListener("click", evento => {
+      if (evento.target === cartel) cerrarCartel();
+    });
+    hoja.appendChild(cartel);
+    if (navigator.vibrate) navigator.vibrate(80);
+    requestAnimationFrame(() => requestAnimationFrame(() => cartel.classList.add("visible")));
+    setTimeout(() => ok.focus({ preventScroll: true }), 50);
+  }
 
   function pendientes() {
     return idsEnOrden().filter(id => !lineaDe(id).hecho);
@@ -555,6 +642,7 @@ function guardarArmado() {
     if (!velo) construir();
     confirmando = "";
     abiertas.clear();
+    faltabanAntes = null;   // al abrir no se avisa (aunque ya esté completo)
     dibujar();
     velo.hidden = false;
     document.body.classList.add("pedidoAbierto");
@@ -595,6 +683,13 @@ function guardarArmado() {
     const hechos = ids.filter(id => lineaDe(id).hecho).length;
     const faltan = ids.length - hechos;
     if (confirmando === "enviar" && faltan === 0) confirmando = "";
+
+    // Se marcó el último HECHO: cartel de aviso y el botón pasa a verde
+    if (faltabanAntes !== null && faltabanAntes > 0 && faltan === 0 && ids.length > 0 && !velo.hidden) {
+      recienCompleto = true;
+      setTimeout(mostrarCompleto, animando ? DURACION_ACHICAR : 0);
+    }
+    faltabanAntes = faltan;
     cuerpo.appendChild(nodo("p", "armadoResumen",
       `${ids.length} productos · ${hechos} hechos · cargado ${new Date(armado.inicio).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })}`));
 
@@ -618,9 +713,19 @@ function guardarArmado() {
       pie.appendChild(nodo("p", "armadoFaltanHecho",
         `⚠️ ${faltan === 1 ? "Falta 1 producto" : `Faltan ${faltan} productos`} sin marcar HECHO (en rojo).`));
     }
-    pie.appendChild(boton(`armadoEnviar${confirmando === "enviar" ? " igual" : ""}`,
+    // Gris mientras falte marcar algún HECHO; verde cuando está completo
+    let claseEnviar = "armadoEnviar";
+    if (confirmando === "enviar") claseEnviar += " igual";
+    else if (faltan > 0) claseEnviar += " incompleto";
+    else if (recienCompleto) claseEnviar += " listo";
+    recienCompleto = false;
+    const enviar = boton(claseEnviar,
       confirmando === "enviar" ? "Enviar igual (tocá de nuevo)" : "Enviar al cliente",
-      tocarEnviar));
+      tocarEnviar);
+    if (faltan > 0 && confirmando !== "enviar") {
+      enviar.setAttribute("aria-label", `Enviar al cliente: ${faltan === 1 ? "falta 1 producto" : `faltan ${faltan} productos`} sin marcar HECHO`);
+    }
+    pie.appendChild(enviar);
 
     const fila = nodo("div", "armadoBotones");
     fila.appendChild(boton("armadoSecundario", "＋ Agregar productos", cerrar));
@@ -697,6 +802,7 @@ function guardarArmado() {
     const precio = precioDe(id);
 
     const fila = nodo("li", "armadoFila");
+    fila.dataset.id = id;
     if (linea.hecho) fila.classList.add("hecho");
     if (linea.estado) fila.classList.add(`estado-${linea.estado}`);
     if (!linea.hecho && confirmando === "enviar") fila.classList.add("pendiente");

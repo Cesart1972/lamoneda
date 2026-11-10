@@ -533,6 +533,14 @@ Aca vamos a darle funcionalidad al listado desplegable de candidatos. Al selecio
 - Lista de compras en cualquier dispositivo: queda para el back-end (Supabase).
 - Service worker v26.
 
+[9.2] 10-11-2026
+
+- Armar pedido ("order"):
+  - Al tocar HECHO la fila se cierra con una transición suave: lo de adentro se desvanece, se pone verde fuerte y se achica hasta quedar como barra con el nombre (medio segundo). Si el celular tiene activado "reducir movimiento", se cierra al instante como antes.
+  - El botón "Enviar al cliente" queda gris mientras falte marcar algún producto HECHO. Tocándolo igual se marcan en rojo los que faltan y se puede mandar con un segundo toque (como en la 9.1).
+  - Al marcar el último HECHO aparece el cartel "¡Pedido armado completo!" (con una vibración corta) y el botón pasa a verde con un latido. Si se le saca el HECHO a alguno vuelve a gris, y al completarlo otra vez avisa de nuevo. Al abrir la hoja con un pedido que ya estaba completo no avisa.
+- Service worker v27.
+
 
 ---
 
