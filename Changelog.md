@@ -541,6 +541,15 @@ Aca vamos a darle funcionalidad al listado desplegable de candidatos. Al selecio
   - Al marcar el último HECHO aparece el cartel "¡Pedido armado completo!" (con una vibración corta) y el botón pasa a verde con un latido. Si se le saca el HECHO a alguno vuelve a gris, y al completarlo otra vez avisa de nuevo. Al abrir la hoja con un pedido que ya estaba completo no avisa.
 - Service worker v27.
 
+[9.3] 11-11-2026
+
+- Armar pedido ("order"): voz al marcar HECHO.
+  - Al tocar HECHO el celular dice la cantidad que se entrega y el producto, para controlar que esté bien: "4 unidades. Playadito 500 gramos", "1 bulto y 5 unidades. …", "ninguna unidad. …" (si se entrega 0).
+  - Lee las abreviaturas como palabras: g → gramos, kg → kilos, cc → centímetros cúbicos, lt → litros, ml → mililitros, (x6u) → por 6 unidades, 3x40 → 3 por 40, saq → saquitos.
+  - Voz elegida: Microsoft Sabina (mujer), tono normal y velocidad 1,25 (un poco rápida). Si el dispositivo no tiene a Sabina, usa otra voz en español (primero la de Argentina). Si se marcan dos seguidos, corta la anterior.
+  - Botón 🔊 en el encabezado de la hoja para apagarla (🔇) y volver a encenderla. Queda guardado en el celular.
+- Service worker v28.
+
 
 ---
 

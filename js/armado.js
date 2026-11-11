@@ -333,12 +333,127 @@ function guardarArmado() {
     return velo ? velo.querySelector(`.armadoFila[data-id="${CSS.escape(String(id))}"]`) : null;
   }
 
+  // ---------------------------------------------------------------------------
+  // Voz al marcar HECHO: dice la cantidad que se entrega y el producto
+  // ("4 unidades. Playadito 500 gramos") para controlar que esté bien.
+  // Botón 🔊 / 🔇 en el encabezado para apagarla; queda guardado en el celular.
+  const VOZ_KEY = "armadoVoz";
+  const VOZ_TONO = 1;            // 0.5 grave · 1 normal · 1.5 agudo
+  const VOZ_VELOCIDAD = 1.25;    // 0.7 lenta · 1 normal · 1.4 rápida (elegida: "E", normal y rápida)
+  const VOZ_PREFERIDA = "sabina";   // Microsoft Sabina (español de México, mujer). Si no está, otra en español
+  const vozDisponible = "speechSynthesis" in window && typeof SpeechSynthesisUtterance === "function";
+
+  function vozActiva() {
+    try {
+      return localStorage.getItem(VOZ_KEY) !== "no";
+    } catch (error) {
+      return true;
+    }
+  }
+
+  function guardarVoz(activa) {
+    try {
+      localStorage.setItem(VOZ_KEY, activa ? "si" : "no");
+    } catch (error) {}
+  }
+
+  // Voz: la preferida (Sabina); si el dispositivo no la tiene, la de Argentina
+  // y después cualquier voz en español
+  function vozEspanol() {
+    const voces = window.speechSynthesis.getVoices() || [];
+    const idioma = voz => String(voz.lang || "").toLowerCase().replace("_", "-");
+    return voces.find(voz => idioma(voz).startsWith("es") && String(voz.name || "").toLowerCase().includes(VOZ_PREFERIDA))
+      || voces.find(voz => idioma(voz) === "es-ar")
+      || voces.find(voz => idioma(voz) === "es-us" || idioma(voz) === "es-419")
+      || voces.find(voz => idioma(voz).startsWith("es"))
+      || null;
+  }
+  if (vozDisponible) {
+    // En Chrome la lista de voces llega un rato después de abrir la página
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.addEventListener?.("voiceschanged", () => window.speechSynthesis.getVoices());
+  }
+
+  // "500g" → "500 gramos", "1,5lt" → "1,5 litros", "(x6u)" → "por 6 unidades", "3x40" → "3 por 40"
+  function nombreParaLeer(nombre) {
+    const unidad = (numero, singular, plural) => `${numero} ${numero === "1" ? singular : plural}`;
+    return String(nombre || "")
+      .replace(/[()]/g, " ")
+      .replace(/\bx\s*(\d+)\s*u\b\.?/gi, (_, n) => `por ${unidad(n, "unidad", "unidades")}`)
+      .replace(/(\d)\s*x\s*(\d)/gi, "$1 por $2")
+      .replace(/(\d+(?:[.,]\d+)?)\s*(kg|kilos?)\b/gi, (_, n) => unidad(n, "kilo", "kilos"))
+      .replace(/(\d+(?:[.,]\d+)?)\s*(grs?|g)\b/gi, (_, n) => unidad(n, "gramo", "gramos"))
+      .replace(/(\d+(?:[.,]\d+)?)\s*(ml)\b/gi, (_, n) => unidad(n, "mililitro", "mililitros"))
+      .replace(/(\d+(?:[.,]\d+)?)\s*(cc)\b/gi, (_, n) => `${n} centímetros cúbicos`)
+      .replace(/(\d+(?:[.,]\d+)?)\s*(lts?|litros?|l)\b/gi, (_, n) => unidad(n, "litro", "litros"))
+      .replace(/(\d+)\s*(u|un)\b\.?/gi, (_, n) => unidad(n, "unidad", "unidades"))
+      .replace(/(\d+)\s*(saq|saquitos?)\b/gi, (_, n) => `${n} saquitos`)
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  // "4 unidades", "1 bulto", "2 cajas y 5 unidades", "ninguna unidad"
+  function cantidadParaLeer(linea, unidades) {
+    const enUnidades = n => (n === 1 ? "1 unidad" : `${n} unidades`);
+    if (!unidades) return "ninguna unidad";
+    if (!linea.medida || linea.porPaso <= 1) return enUnidades(unidades);
+    const pasos = Math.floor(unidades / linea.porPaso);
+    const resto = unidades % linea.porPaso;
+    const partes = [];
+    if (pasos > 0) partes.push(`${pasos} ${pluralizar(linea.medida, pasos)}`);
+    if (resto > 0) partes.push(enUnidades(resto));
+    return partes.join(" y ");
+  }
+
+  function decirHecho(id) {
+    if (!vozDisponible || !vozActiva()) return;
+    const product = productoPorId(id);
+    if (!product) return;
+    const linea = lineaDe(id);
+    const texto = `${cantidadParaLeer(linea, cart[id] || 0)}. ${nombreParaLeer(product.name)}`;
+    try {
+      const sintesis = window.speechSynthesis;
+      sintesis.cancel();   // si se marcan dos seguidos, se corta el anterior
+      const frase = new SpeechSynthesisUtterance(texto);
+      const voz = vozEspanol();
+      if (voz) frase.voice = voz;
+      frase.lang = voz ? voz.lang : "es-AR";
+      frase.pitch = VOZ_TONO;
+      frase.rate = VOZ_VELOCIDAD;
+      sintesis.speak(frase);
+    } catch (error) {}
+  }
+
+  function botonVoz() {
+    const encabezado = velo && velo.querySelector(".armadoEncabezado");
+    if (!vozDisponible || !encabezado || encabezado.querySelector(".armadoVoz")) return;
+    const boton = nodo("button", "armadoVoz");
+    boton.type = "button";
+    const pintar = () => {
+      const activa = vozActiva();
+      boton.textContent = activa ? "🔊" : "🔇";
+      boton.classList.toggle("apagada", !activa);
+      boton.setAttribute("aria-pressed", String(activa));
+      boton.setAttribute("aria-label", activa ? "Voz al marcar HECHO: encendida" : "Voz al marcar HECHO: apagada");
+      boton.title = activa ? "La voz dice cada producto al marcar HECHO. Tocá para apagarla" : "Tocá para que la voz diga cada producto al marcar HECHO";
+    };
+    boton.onclick = () => {
+      const activa = !vozActiva();
+      guardarVoz(activa);
+      if (!activa) window.speechSynthesis.cancel();
+      pintar();
+    };
+    pintar();
+    encabezado.insertBefore(boton, encabezado.querySelector(".armadoCerrar"));
+  }
+
   function alternarHecho(id) {
     if (animando) return;
     const linea = lineaDe(id);
     linea.hecho = !linea.hecho;
     abiertas.delete(id);   // al marcarlo HECHO se achica (queda solo el nombre)
     guardarArmado();
+    if (linea.hecho) decirHecho(id);   // se llama en el toque (iPhone lo exige)
 
     const fila = filaDe(id);
     if (!linea.hecho || !fila || sinMovimiento() || typeof fila.animate !== "function") {
@@ -629,6 +744,7 @@ function guardarArmado() {
         <footer class="armadoPie"></footer>
       </section>`;
     velo.querySelector(".armadoCerrar").onclick = cerrar;
+    botonVoz();
     velo.addEventListener("click", evento => {
       if (evento.target === velo) cerrar();
     });
