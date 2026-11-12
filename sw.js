@@ -21,7 +21,7 @@
    PRECACHE_URLS.
    ========================================================= */
 
-const CACHE_VERSION = "v28";
+const CACHE_VERSION = "v31";
 const CACHE_APP = `app-${CACHE_VERSION}`;
 const CACHE_IMAGES = `imagenes-${CACHE_VERSION}`;
 
@@ -50,6 +50,8 @@ const PRECACHE_URLS = [
   "css/avisos.css",
   "js/modo-simple.js",
   "js/analitica.js",
+  "js/proveedores.js",
+  "css/proveedores.css",
   "css/modo-simple.css",
   "css/redes.css",
   "js/favoritos.js",

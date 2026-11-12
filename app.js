@@ -216,7 +216,9 @@ let textoPedidoArmado = "";
    (cliente/config.js → palabrasReservadas). Valen hasta cerrar la app.
    - quiebre: muestra solo los productos sin stock
    - enviarIgual (send): pedido sin mínimo, se copia y se elige el contacto (js/carrito.js)
-   - desbloquear (unlock): todos los productos sin stock pasan a disponibles */
+   - desbloquear (unlock): todos los productos sin stock pasan a disponibles
+   - proveedores (supplier): lista de proveedores; al elegir uno se ven sus
+     productos, primero los sin stock (js/proveedores.js) */
 
 function palabraReservada(nombre) {
   const palabras = CLIENTE.palabrasReservadas || {};
@@ -439,7 +441,9 @@ function handleFilterPipeline() {
       : queryOriginal
   );
 
-  const adminMode = esPalabraReservada(query, "quiebre");
+  // Proveedor elegido con "supplier" (js/proveedores.js)
+  const proveedor = typeof proveedorElegido === "function" ? proveedorElegido() : "";
+  const adminMode = !proveedor && esPalabraReservada(query, "quiebre");
 
    // =====================================================
   // BÚSQUEDA INTELIGENTE
@@ -449,7 +453,7 @@ function handleFilterPipeline() {
 let smartResultGroups = null;
 let fullMatchIds = new Set();
 
-  if (!adminMode && query) {
+  if (!adminMode && !proveedor && query) {
 
     const queryTerms =
       query
@@ -584,7 +588,7 @@ let fullMatchIds = new Set();
   // (Si no encontró nada, queda la búsqueda aproximada de arriba.)
   let ordenBusqueda = null;
 
-  if (!adminMode && query && typeof calcularCandidatosBusqueda === "function") {
+  if (!adminMode && !proveedor && query && typeof calcularCandidatosBusqueda === "function") {
     const candidatos = calcularCandidatosBusqueda(queryOriginal);
     if (candidatos.ids.length) {
       smartResultIds = new Set(candidatos.ids);
@@ -600,6 +604,7 @@ let fullMatchIds = new Set();
   // Al buscar o filtrar, solo productos.
   const listaCompleta =
     !adminMode &&
+    !proveedor &&
     !query &&
     chipsActivos.length === 0 &&
     FILTROS.every(filtro => activeFilters[filtro.campo] === "ALL");
@@ -613,7 +618,9 @@ let fullMatchIds = new Set();
 
   const filteredProducts = base.filter(product => {
 
-    const matchesSearch = adminMode
+    const matchesSearch = proveedor
+      ? esDelProveedor(product, proveedor)
+      : adminMode
       ? (!product.inStock || product.estabaSinStock)
       : (
           !query ||
@@ -762,6 +769,12 @@ if (
         filteredProducts.splice(0, filteredProducts.length, ...ordenada);
     }
 
+  // Proveedor: orden del catálogo, primero los sin stock (con su barra)
+  if (proveedor) {
+    filteredProducts.splice(0, filteredProducts.length,
+      ...productosDelProveedorOrdenados(filteredProducts));
+  }
+
   // =====================================================
   // INFORMACIÓN SUPERIOR
   // =====================================================
@@ -805,7 +818,12 @@ if (
     }
   });
 
-  if (adminMode) {
+  if (proveedor) {
+
+    const sinStock = filteredProducts.filter(product => esProducto(product) && !product.inStock).length;
+    label = `🏭 Proveedor: ${proveedor} · ${sinStock} sin stock`;
+
+  } else if (adminMode) {
 
     label =
       "🛠️ Modo administrador: Productos con quiebre de stock";

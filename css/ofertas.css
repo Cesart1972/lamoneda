@@ -633,6 +633,46 @@
   display: none;
 }
 
+/* Imagen del carrusel (config → carrusel.imagenes): vertical 1080 × 1920
+   (formato de estado), del mismo alto que las tarjetas. El ancho lo pone el JS. */
+.ofertaCaraImagen {
+  border-radius: 14px;
+}
+
+.ofertaImagen {
+  display: block;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+  border: 2px solid var(--oferta-naranja);
+  border-radius: 14px;
+  background: #fff;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.ofertaCaraImagen.alFrente .ofertaImagen {
+  border: 3px solid var(--oferta-rojo);
+}
+
+.ofertasHoy.modoPlano .ofertaCaraImagen .ofertaImagen {
+  box-shadow: 0 8px 18px rgba(31, 41, 51, 0.14);
+}
+
+.ofertasHoy.modoPlano .ofertaCaraImagen {
+  align-self: center;
+}
+
+/* En la fila plana el botón "Ver productos" va debajo de la imagen
+   (no montado sobre el borde, para no taparla) */
+.ofertasHoy.modoPlano .ofertaCaraImagen .ofertaCaraAccion {
+  margin-top: 8px;
+}
+
+.ofertasHoy.modoPlano .ofertaCaraImagen .ofertaCaraAccion:not(:has(button)) {
+  display: none;
+}
+
 
 /* ---------------- BOTÓN AGREGAR (afuera de la tarjeta) ---------------- */
 /* Debajo de la tarjeta del frente, montado sobre su borde de abajo.

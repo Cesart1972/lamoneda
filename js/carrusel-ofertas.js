@@ -21,6 +21,16 @@
    o en navegadores sin 3D se muestra como una fila plana deslizable,
    con el botón debajo de cada tarjeta.
 
+   Configuración (cliente/config.js → carrusel):
+   - visible: false lo apaga del todo (no se ve aunque haya ofertas).
+   - imagenes: tabla de imágenes verticales de 1080 × 1920 (formato de
+     estado/historia; carpeta imagenes/carrusel/) con fecha desde y hasta.
+     Sin "desde" no se publica; sin "hasta" no termina. Cada imagen vigente
+     es una cara más del anillo, del mismo alto que las tarjetas. Si tiene
+     "buscar", debajo aparece "Ver productos", que busca ese texto.
+   - Si hay imágenes pero ninguna oferta, el título pasa a tituloSinOfertas
+     y no se muestra la cuenta regresiva.
+
    Usa ofertaDeHoy() y ofertaComunDeVariedades() de js/ofertas.js y
    agruparVariedades(), agregarAlCarrito(), cambiarCantidadEnCarrito(),
    modoListaCompleta... de app.js.
@@ -36,6 +46,13 @@
   const SEGUNDOS_POR_CARA = 3.2;    // velocidad del giro automático
   const MINIMO_ANILLO = 3;          // con menos caras, fila plana
   const MAXIMO_ANILLO = 12;         // con más caras, fila plana
+  const PROPORCION_IMAGEN = 9 / 16; // ancho ÷ alto de las imágenes (1080 × 1920)
+  const SEPARACION = 20;            // px entre cara y cara
+
+  const ajustes = (typeof CLIENTE !== "undefined" && CLIENTE.carrusel) || {};
+  const carruselVisible = ajustes.visible !== false;
+  const carpetaImagenes = ajustes.carpeta || "imagenes/carrusel/";
+  const imagenesQueFallaron = new Set();
 
   const sinMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)");
   const con3D = typeof CSS !== "undefined" && CSS.supports &&
@@ -47,7 +64,8 @@
 
   // Estado del anillo
   let angulo = 0;            // grados que giró el anillo
-  let paso = 0;              // grados entre cara y cara
+  let paso = 0;              // grados promedio entre cara y cara (velocidad del giro)
+  let angulos = [];          // ángulo de cada cara (las imágenes son más anchas)
   let radio = 0;
   let estado = "girando";    // girando · arrastrando · inercia · llevando · quieto
   let velocidad = 0;         // grados por segundo (inercia)
@@ -61,11 +79,10 @@
 
   const titulo = elemento("div", "ofertasHoyTitulo");
   const reloj = elemento("b", "ofertasHoyReloj");
-  titulo.append(
-    elemento("span", "ofertasHoyNombre", "🔥 Ofertas de hoy"),
-    elemento("span", "ofertasHoyTermina", "terminan en ")
-  );
-  titulo.lastChild.appendChild(reloj);
+  const nombreTitulo = elemento("span", "ofertasHoyNombre", ajustes.titulo || "🔥 Ofertas de hoy");
+  const termina = elemento("span", "ofertasHoyTermina", "terminan en ");
+  termina.appendChild(reloj);
+  titulo.append(nombreTitulo, termina);
 
   const escena = elemento("div", "ofertasEscena");
   const anillo = elemento("div", "ofertasAnillo");
@@ -116,13 +133,80 @@
       }
     });
 
-    return [...lista.filter(item => !item.agotado), ...lista.filter(item => item.agotado)];
+    const ofertas = [...lista.filter(item => !item.agotado), ...lista.filter(item => item.agotado)];
+    const imagenes = imagenesVigentes();
+    return ajustes.imagenesPrimero === false ? [...ofertas, ...imagenes] : [...imagenes, ...ofertas];
+  }
+
+  /* ---------------- IMÁGENES (config → carrusel.imagenes) ---------------- */
+  // Vigente si hoy está entre "desde" y "hasta" (las dos incluidas).
+  // Sin "desde": no se publica. Sin "hasta": no termina.
+
+  function imagenesVigentes() {
+    const hoy = fechaDeHoy();
+    return (Array.isArray(ajustes.imagenes) ? ajustes.imagenes : [])
+      .filter(dato => dato && String(dato.imagen || "").trim())
+      .filter(dato => {
+        const desde = textoFechaOferta(dato.desde);
+        const hasta = textoFechaOferta(dato.hasta);
+        if (desde === "invalida" || hasta === "invalida") {
+          console.warn(`Carrusel: la imagen "${dato.imagen}" tiene una fecha mal escrita (usá 2026-11-12 o 12/11/2026).`);
+          return false;
+        }
+        return Boolean(desde) && desde <= hoy && (!hasta || hoy <= hasta);
+      })
+      .map(dato => {
+        const archivo = String(dato.imagen).trim();
+        return {
+          tipo: "imagen",
+          src: archivo.includes("/") ? archivo : carpetaImagenes + archivo,
+          texto: String(dato.titulo || "").trim(),
+          buscar: String(dato.buscar || "").trim()
+        };
+      })
+      .filter(item => !imagenesQueFallaron.has(item.src));
+  }
+
+  function crearCaraImagen(item, indice) {
+    const cara = elemento("div", "ofertaCara ofertaCaraImagen");
+    cara.dataset.indice = String(indice);
+    const foto = elemento("img", "ofertaImagen");
+    foto.src = item.src;
+    foto.alt = item.texto;
+    foto.decoding = "async";
+    foto.draggable = false;
+    foto.onerror = () => {
+      // Imagen que no está en la carpeta: se saca del carrusel
+      foto.onerror = null;
+      console.warn(`Carrusel: no se encontró la imagen ${item.src}`);
+      imagenesQueFallaron.add(item.src);
+      construir();
+    };
+    const accionPropia = elemento("div", "ofertaCaraAccion");
+    cara.append(foto, accionPropia);
+    return cara;
+  }
+
+  // "Ver productos": busca el texto de la imagen en el catálogo
+  function crearControlImagen(item) {
+    const caja = elemento("div", "ofertaControl");
+    if (!item.buscar) return caja;
+    const boton = elemento("button", "ofertaAgregar ofertaVerProductos", "Ver productos");
+    boton.type = "button";
+    boton.onclick = evento => {
+      evento.stopPropagation();
+      searchInput.value = item.buscar;
+      searchInput.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+    caja.appendChild(boton);
+    return caja;
   }
 
 
   /* ---------------- TARJETAS ---------------- */
 
   function crearCara(item, indice) {
+    if (item.tipo === "imagen") return crearCaraImagen(item, indice);
     const cara = elemento("div", "ofertaCara");
     cara.dataset.indice = String(indice);
     if (item.agotado) cara.classList.add("agotada");
@@ -163,10 +247,18 @@
   }
 
   function construir() {
-    items = armarItems();
+    items = carruselVisible ? armarItems() : [];
     anillo.replaceChildren();
     caras = items.map(crearCara);
     caras.forEach(cara => anillo.appendChild(cara));
+
+    // Solo imágenes (sin ofertas hoy): otro título y sin cuenta regresiva
+    const hayOfertas = items.some(item => item.tipo !== "imagen");
+    nombreTitulo.textContent = hayOfertas
+      ? (ajustes.titulo || "🔥 Ofertas de hoy")
+      : (ajustes.tituloSinOfertas || "📣 Novedades");
+    termina.hidden = !hayOfertas;
+    seccion.setAttribute("aria-label", nombreTitulo.textContent.replace(/^\W+/, ""));
 
     modoPlano = !con3D || sinMovimiento.matches ||
       items.length < MINIMO_ANILLO || items.length > MAXIMO_ANILLO;
@@ -279,6 +371,7 @@
 
   function controlDe(indice) {
     const item = items[indice];
+    if (item.tipo === "imagen") return crearControlImagen(item);
     return item.tipo === "poster" ? crearControlGrupo(item, indice) : crearControl(item.product, item.agotado);
   }
 
@@ -337,8 +430,10 @@
         cara.querySelector(".ofertaCaraAccion").replaceChildren(controlDe(indice));
       });
     } else {
-      accion.replaceChildren(frente >= 0 ? controlDe(frente) : "");
-      accion.classList.toggle("visible", frente >= 0);
+      const control = frente >= 0 ? controlDe(frente) : null;
+      const conBoton = Boolean(control && control.childElementCount);
+      accion.replaceChildren(conBoton ? control : "");
+      accion.classList.toggle("visible", conBoton);
     }
     if (variedadesAbiertas >= 0) dibujarVariedades();
   }
@@ -357,27 +452,65 @@
   /* ---------------- MEDIDAS DEL ANILLO ---------------- */
   // Cada cara: rotateY(n × 360°/caras) translateZ(radio)
 
+  // Las imágenes (verticales, 9:16) tienen el mismo alto que las tarjetas
+  // de oferta; el ancho sale de la proporción.
+  function medirImagenes(anchoCara) {
+    const tarjeta = anillo.querySelector(".ofertaCara:not(.ofertaCaraImagen) .ofertaTarjeta");
+    const altoTarjeta = (tarjeta && tarjeta.offsetHeight) || anchoCara + 74;
+    const alto = modoPlano && !tarjeta ? Math.round(anchoCara * 1.6) : altoTarjeta;
+    const anchoImagen = Math.round(alto * PROPORCION_IMAGEN);
+    caras.forEach((cara, indice) => {
+      if (items[indice].tipo !== "imagen") return;
+      cara.style.width = `${anchoImagen}px`;
+      cara.style.flexBasis = `${anchoImagen}px`;
+      cara.style.left = modoPlano ? "" : `${(anchoCara - anchoImagen) / 2}px`;
+    });
+    return anchoImagen;
+  }
+
   function medir() {
+    const ancho = escena.clientWidth || seccion.clientWidth || 360;
+    const anchoCara = Math.round(Math.max(128, Math.min(200, ancho * 0.38)));
+    seccion.style.setProperty("--ancho-cara", `${anchoCara}px`);
+    const anchoImagen = medirImagenes(anchoCara);
+
     if (modoPlano || caras.length === 0) {
       caras.forEach(cara => { cara.style.transform = ""; cara.style.opacity = ""; cara.style.filter = ""; });
       anillo.style.transform = "";
       return;
     }
-    const ancho = escena.clientWidth || seccion.clientWidth || 360;
-    const anchoCara = Math.round(Math.max(128, Math.min(200, ancho * 0.38)));
-    seccion.style.setProperty("--ancho-cara", `${anchoCara}px`);
 
+    // Cada cara ocupa un ángulo según su ancho. Se busca el radio con el
+    // que todas juntas dan la vuelta completa (360°).
+    const mitades = items.map(item => (item.tipo === "imagen" ? anchoImagen : anchoCara) / 2 + SEPARACION / 2);
+    const vuelta = r => mitades.reduce((total, mitad) => total + 2 * Math.atan(mitad / r), 0);
+    let menor = 1;
+    let mayor = 20000;
+    for (let vez = 0; vez < 60; vez++) {
+      const medio = (menor + mayor) / 2;
+      if (vuelta(medio) > 2 * Math.PI) menor = medio;
+      else mayor = medio;
+    }
+    radio = Math.round(mayor);
+
+    angulos = [];
+    let acumulado = 0;
+    mitades.forEach((mitad, indice) => {
+      const medioAngulo = Math.atan(mitad / radio) * 180 / Math.PI;
+      if (indice > 0) acumulado += medioAngulo;
+      angulos.push(acumulado);
+      acumulado += medioAngulo;
+    });
     paso = 360 / caras.length;
-    radio = Math.round((anchoCara / 2 + 10) / Math.tan(Math.PI / caras.length));
     caras.forEach((cara, indice) => {
-      cara.style.transform = `rotateY(${indice * paso}deg) translateZ(${radio}px)`;
+      cara.style.transform = `rotateY(${angulos[indice]}deg) translateZ(${radio}px)`;
     });
     dibujar();
   }
 
   // Ángulo de una cara respecto del frente (-180 a 180)
   function relativo(indice) {
-    let diferencia = (indice * paso - angulo) % 360;
+    let diferencia = ((angulos[indice] ?? indice * paso) - angulo) % 360;
     if (diferencia > 180) diferencia -= 360;
     if (diferencia < -180) diferencia += 360;
     return diferencia;
@@ -422,7 +555,7 @@
     } else if (estado === "inercia") {
       angulo += velocidad * segundos;
       velocidad *= Math.pow(0.04, segundos);   // frena rápido
-      if (Math.abs(velocidad) < paso * 0.8) llevarA(Math.round(angulo / paso) * paso);
+      if (Math.abs(velocidad) < paso * 0.8) llevarA(angulo + relativo(caraAlFrente()));
     } else if (estado === "llevando") {
       const falta = destino - angulo;
       angulo += falta * Math.min(1, segundos * 9);
@@ -513,8 +646,8 @@
     }
     if (!toque.arrastre) return;
 
-    // Una cara de ancho de arrastre = una cara de giro
-    const gradosPorPixel = paso / (parseFloat(getComputedStyle(seccion).getPropertyValue("--ancho-cara")) || 160);
+    // El anillo sigue al dedo (un px de arrastre = un px del borde del anillo)
+    const gradosPorPixel = 180 / Math.PI / Math.max(1, radio);
     angulo = toque.anguloInicial - distancia * gradosPorPixel;
 
     const ahora = performance.now();

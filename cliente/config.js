@@ -72,6 +72,39 @@ const CLIENTE = {
   },
 
 
+  /* ---------------- CARRUSEL "OFERTAS DE HOY" ---------------- */
+  // El anillo 3D de arriba (js/carrusel-ofertas.js).
+
+  carrusel: {
+    // false = no se muestra nunca (aunque haya ofertas o imágenes)
+    visible: true,
+
+    titulo: "🔥 Ofertas de hoy",
+    // Si hoy no hay ofertas pero sí imágenes vigentes
+    tituloSinOfertas: "📣 Novedades",
+
+    // Imágenes verticales de 1080 × 1920 (formato de estado / historia, las
+    // mismas que para redes). Van en esta carpeta, aparte de las fotos de
+    // productos. Cada una es una cara del anillo, del alto de las tarjetas.
+    carpeta: "imagenes/carrusel/",
+
+    // true = las imágenes van antes que las ofertas · false = después
+    imagenesPrimero: true,
+
+    // Una fila por imagen:
+    //   imagen  → nombre del archivo dentro de "carpeta"
+    //   desde   → primer día que se muestra ("2026-11-12" o "12/11/2026").
+    //             Vacío = NO se publica
+    //   hasta   → último día que se muestra (incluido). Vacío = no termina
+    //   titulo  → texto que la describe (para lectores de pantalla). Opcional
+    //   buscar  → si tiene texto, debajo aparece "Ver productos" y busca
+    //             eso en el catálogo (ej. "pitusas"). Opcional
+    imagenes: [
+      // { imagen: "promo-pitusas.webp", desde: "2026-11-12", hasta: "2026-11-15", titulo: "Semana Pitusas", buscar: "pitusas" },
+    ]
+  },
+
+
   /* ---------------- CONDICIONES DEL PEDIDO ---------------- */
 
   pedido: {
@@ -113,7 +146,11 @@ const CLIENTE = {
 
     // Deja de contar este celular en Meta y Google (para que tus
     // propias visitas y pruebas no se mezclen). Otra vez = vuelve a contar.
-    noMedir: "nomedir"
+    noMedir: "nomedir",
+
+    // Lista de proveedores (columna supplier). Al elegir uno muestra sus
+    // productos en el orden del catálogo, primero los sin stock (js/proveedores.js)
+    proveedores: "supplier"
   },
 
 

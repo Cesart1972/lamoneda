@@ -550,6 +550,30 @@ Aca vamos a darle funcionalidad al listado desplegable de candidatos. Al selecio
   - Botón 🔊 en el encabezado de la hoja para apagarla (🔇) y volver a encenderla. Queda guardado en el celular.
 - Service worker v28.
 
+[9.4] 11-11-2026
+
+- Armar pedido ("order"): la voz al marcar HECHO ahora habla más rápido. Elegida con el probador de voz: Microsoft Sabina, tono normal y velocidad 1,50 (antes 1,25).
+- Service worker v29.
+
+[9.5] 11-11-2026
+
+- Palabra reservada nueva "supplier" (cliente/config.js → palabrasReservadas.proveedores; archivos nuevos js/proveedores.js y css/proveedores.css).
+  - Escrita en el buscador abre la lista de todos los proveedores (columna supplier), en orden alfabético, con la cantidad de productos de cada uno y, en rojo, cuántos están sin stock.
+  - Al tocar uno se ven solo sus productos, en el mismo orden del catálogo, pero primero los sin stock (barra "⛔ Sin stock (N)") y después los que tienen stock (barra "✅ Con stock (N)").
+  - Arriba queda la barra "🏭 Proveedor" con "Cambiar" (vuelve a la lista) y "✕" (vuelve al catálogo). Escribir otra cosa en el buscador o borrarlo también vuelve al catálogo.
+- Service worker v30.
+
+[9.6] 11-11-2026
+
+- Carrusel "Ofertas de hoy" configurable (cliente/config.js → carrusel):
+  - visible: true / false. Con false no se muestra nunca, aunque haya ofertas.
+  - Tabla de imágenes: una fila por imagen con imagen (archivo), desde y hasta (incluidas), titulo y buscar (opcionales). Sin "desde" no se publica; con "desde" y sin "hasta" empieza ese día y no termina. Las imágenes van en la carpeta nueva imagenes/carrusel/ (aparte de las fotos de productos).
+  - Imágenes verticales de 1080 × 1920 (9:16, formato de estado/historia, las mismas que para redes). Cada imagen vigente es una cara más del anillo, del mismo alto que las tarjetas de oferta y más angosta (el anillo calcula el ángulo de cada cara según su ancho). Con imagenesPrimero: true van antes que las ofertas.
+  - Si la imagen tiene "buscar", con la imagen al frente aparece "Ver productos", que busca ese texto en el catálogo.
+  - Un día sin ofertas pero con imágenes vigentes, el carrusel aparece igual con el título "📣 Novedades" (tituloSinOfertas) y sin la cuenta regresiva.
+  - Si una imagen no está en la carpeta, se saca sola del carrusel (y avisa en la consola). Si una fecha está mal escrita, esa imagen no se muestra.
+- Service worker v31.
+
 
 ---
 

@@ -339,7 +339,7 @@ function guardarArmado() {
   // Botón 🔊 / 🔇 en el encabezado para apagarla; queda guardado en el celular.
   const VOZ_KEY = "armadoVoz";
   const VOZ_TONO = 1;            // 0.5 grave · 1 normal · 1.5 agudo
-  const VOZ_VELOCIDAD = 1.25;    // 0.7 lenta · 1 normal · 1.4 rápida (elegida: "E", normal y rápida)
+  const VOZ_VELOCIDAD = 1.5;     // 0.7 lenta · 1 normal · 1.5 rápida (elegida por César: Sabina, normal, 1,50)
   const VOZ_PREFERIDA = "sabina";   // Microsoft Sabina (español de México, mujer). Si no está, otra en español
   const vozDisponible = "speechSynthesis" in window && typeof SpeechSynthesisUtterance === "function";
 

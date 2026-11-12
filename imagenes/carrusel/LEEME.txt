@@ -1,0 +1,3 @@
+Imagenes del carrusel "Ofertas de hoy" (1920 x 1080, horizontales).
+Se cargan en cliente/config.js -> carrusel.imagenes, con fecha desde y hasta.
+Formato recomendado: .webp (liviano). Este archivo se puede dejar: no se muestra en la app.
