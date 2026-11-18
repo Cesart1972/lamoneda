@@ -30,36 +30,57 @@ El detalle de cada decisión está en los documentos del proyecto `modelo-de-dat
 
 ## 2. Primer alta (Ces.Art y La Moneda)
 
-1. **Authentication** → **Users** → **Add user**: creá tu usuario de Ces.Art (tu email y una clave).
-   Copiá el "User UID" que aparece.
-2. En el **SQL Editor**, con ese UID:
+Dos usuarios separados (decisión de César 17-11-2026): uno para Ces.Art y otro para La Moneda.
+Así, como La Moneda se ve exactamente lo mismo que va a ver cualquier distribuidora que compre la app.
+
+1. **Authentication** → **Users** → **Add user** → **Create new user**, dos veces:
+   - Usuario **Ces.Art**: el email de Ces.Art y una clave. Copiá su "User UID".
+   - Usuario **La Moneda**: el email de La Moneda y otra clave. Copiá su "User UID".
+   - Dejá marcado "Auto Confirm User".
+2. En el **SQL Editor**, en una query nueva, pegá esto reemplazando los dos UID (corré todo junto):
 
 ```sql
--- Vos como dueño de la plataforma
+-- 1. Ces.Art: dueño de la plataforma (da de alta distribuidoras, cobra abonos, confirma rendiciones)
 insert into plataforma_miembros (user_id, nombre, rol)
-values ('PEGAR-TU-UID', 'Ces.Art', 'dueno_plataforma');
+values ('UID-DE-CES-ART', 'Ces.Art', 'dueno_plataforma');
 
--- La Moneda (abono pagado hasta este mes)
-insert into empresas (nombre, slug, abono_monto, abono_pagado_hasta)
-values ('La Moneda', 'la-moneda', 30000, date_trunc('month', now())::date)
-returning id;   -- copiá este id
-
--- Vos como dueño de La Moneda (como dueño de la plataforma ya podés cobrar y rendir)
+-- 2. La Moneda: la distribuidora (abono pagado hasta este mes)
+--    y su dueño (el usuario de La Moneda)
+with nueva as (
+  insert into empresas (nombre, slug, abono_monto, abono_pagado_hasta)
+  values ('La Moneda', 'la-moneda', 30000, date_trunc('month', now())::date)
+  returning id
+)
 insert into miembros (empresa_id, user_id, nombre, roles)
-values ('PEGAR-ID-LA-MONEDA', 'PEGAR-TU-UID', 'César', '{dueno}');
+select id, 'UID-DE-LA-MONEDA', 'César', '{dueno}' from nueva;
 ```
+
+3. Para comprobar, corré en otra query: `select nombre, slug from empresas;` → tiene que aparecer La Moneda.
+
+Más adelante, si alguien más cobra, se lo da de alta como `cobrador` en `plataforma_miembros`
+y se le asignan sus distribuidoras en `cobrador_empresas`. Hoy cobrás vos como dueño de la plataforma.
 
 3. La carga de los productos (`importar_productos`) se hace desde el panel cuando esté listo,
    o se prepara un archivo SQL a partir de `products-data.js`.
 
 ## 3. Mails (Resend) para recuperar la clave
 
-1. Creá una cuenta gratis en [resend.com](https://resend.com) (3000 mails por mes, 100 por día).
-2. **Domains** → **Add domain** → `lamoneda.com.ar`. Resend te muestra unos registros DNS (TXT y MX).
-3. En **Netlify** → **Domains** → `lamoneda.com.ar` → **DNS settings** → **Add new record**: cargá cada uno tal cual.
-   Esperá a que Resend muestre el dominio como **Verified** (puede tardar unas horas).
-   Esto no toca la página: solo autoriza a mandar mails en nombre del dominio.
-4. **API Keys** → **Create API key** (permiso "Sending access"). Copiala: se ve una sola vez.
+Los mails salen del dominio del producto **Dosys** (`dosystem.com.ar`), no del de cada distribuidora.
+Cada mail lleva como remitente el nombre de la distribuidora: "La Moneda <avisos@mail.dosystem.com.ar>".
+Así sirve para todas las distribuidoras sin tocar nada.
+
+1. Registrá `dosystem.com.ar` en [NIC Argentina](https://nic.ar) y delegalo a un DNS
+   (por ejemplo Netlify DNS, como `lamoneda.com.ar`, o Cloudflare, que es gratis).
+2. La cuenta de Resend va **a nombre de Ces.Art** (es de la plataforma): creala en [resend.com](https://resend.com)
+   (gratis: 3000 mails por mes, 100 por día, hasta 3 dominios).
+3. **Domains** → **Add domain** → `mail.dosystem.com.ar` (un subdominio: Resend lo recomienda para que la
+   reputación de los envíos no afecte al dominio principal). Resend te muestra unos registros DNS (TXT y MX).
+4. Cargá esos registros tal cual en el DNS de `dosystem.com.ar` y esperá a que Resend lo muestre como **Verified**
+   (puede tardar unas horas).
+5. **API Keys** → **Create API key** (permiso "Sending access"). Copiala: se ve una sola vez.
+
+Mientras esto no esté, todo lo demás funciona; solo no anda "recuperar la clave por email"
+(el respaldo por WhatsApp desde el panel sí).
 
 ## 4. Cargar las funciones del servidor
 
@@ -71,12 +92,12 @@ En Supabase: menú **Edge Functions** → **Deploy a new function** → **Via Ed
    (la app las llama antes de que el cliente tenga sesión; las funciones controlan todo adentro).
 4. **Edge Functions** → **Secrets** → agregá:
    - `RESEND_API_KEY` = la clave de Resend
-   - `MAIL_REMITENTE` = `avisos@lamoneda.com.ar`
+   - `MAIL_REMITENTE` = `avisos@mail.dosystem.com.ar`
 
    (Las claves de Supabase `SUPABASE_URL`, `SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY` ya están cargadas solas.)
 
 **Primera prueba:** cuando las funciones estén cargadas, avisame y las probamos juntos con un cliente de prueba.
-Si Supabase rechazara el formato del usuario interno de los clientes (`5492346…@la-moneda.clientes.ces-art.app`),
+Si Supabase rechazara el formato del usuario interno de los clientes (`5492346…@la-moneda.clientes.dosystem.com.ar`),
 se cambia en una sola línea (`emailInterno`).
 
 ## Reglas para cambios futuros

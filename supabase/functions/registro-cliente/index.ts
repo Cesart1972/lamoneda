@@ -37,7 +37,7 @@ export function clienteAnonimo(): SupabaseClient {
   return createClient(SUPABASE_URL, ANON_KEY, { auth: { persistSession: false } });
 }
 
-// La app está en otro dominio (lamoneda.com.ar): hay que permitirlo
+// La app de cada distribuidora está en su dominio (ej. lamoneda.com.ar): hay que permitirlo
 export const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -65,7 +65,7 @@ export function telefonoValido(t: unknown): t is string {
 // cliente de dos distribuidoras, con claves distintas.
 // No es un email real (no recibe mails): el email real está en la tabla clientes.
 export function emailInterno(telefono: string, slug: string): string {
-  return `${telefono.replace("+", "")}@${slug}.clientes.ces-art.app`;
+  return `${telefono.replace("+", "")}@${slug}.clientes.dosystem.com.ar`;
 }
 
 export function claveValida(c: unknown): c is string {

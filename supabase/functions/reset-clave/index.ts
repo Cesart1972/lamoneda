@@ -14,7 +14,8 @@
 //
 // Secretos que hay que cargar en Supabase (Edge Functions → Secrets):
 //   RESEND_API_KEY   la clave de Resend
-//   MAIL_REMITENTE   por ejemplo avisos@lamoneda.com.ar (dominio verificado en Resend)
+//   MAIL_REMITENTE   avisos@mail.dosysapp.com.ar (subdominio de Dosys verificado en Resend)
+//   El nombre de cada distribuidora va como remitente: "La Moneda <avisos@mail.dosysapp.com.ar>"
 // =========================================================
 
 // ---------- Ayudas (iguales en las dos funciones) ----------
@@ -41,7 +42,7 @@ export function clienteAnonimo(): SupabaseClient {
   return createClient(SUPABASE_URL, ANON_KEY, { auth: { persistSession: false } });
 }
 
-// La app está en otro dominio (lamoneda.com.ar): hay que permitirlo
+// La app de cada distribuidora está en su dominio (ej. lamoneda.com.ar): hay que permitirlo
 export const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -69,7 +70,7 @@ export function telefonoValido(t: unknown): t is string {
 // cliente de dos distribuidoras, con claves distintas.
 // No es un email real (no recibe mails): el email real está en la tabla clientes.
 export function emailInterno(telefono: string, slug: string): string {
-  return `${telefono.replace("+", "")}@${slug}.clientes.ces-art.app`;
+  return `${telefono.replace("+", "")}@${slug}.clientes.dosysapp.com.ar`;
 }
 
 export function claveValida(c: unknown): c is string {
