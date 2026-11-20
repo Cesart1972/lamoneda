@@ -574,6 +574,12 @@ Aca vamos a darle funcionalidad al listado desplegable de candidatos. Al selecio
   - Si una imagen no está en la carpeta, se saca sola del carrusel (y avisa en la consola). Si una fecha está mal escrita, esa imagen no se muestra.
 - Service worker v31.
 
+[9.7] 19-11-2026
+
+- Encabezado: se sacó el botón "Info" (abría la bienvenida, que igual sale sola la primera vez). Quedan Simple, Avisos y Compartir.
+- Con un botón menos, el título "Catálogo" ahora se ve desde 350 px de ancho (antes se escondía en celulares de menos de 375 px, como muchos Android de 360 px). Solo se esconde en pantallas de menos de 350 px.
+- Service worker v32.
+
 
 ---
 

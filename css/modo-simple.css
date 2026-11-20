@@ -27,7 +27,7 @@
     font-weight:800;
 }
 
-/* Con 4 botones en el encabezado del celular, un poco más juntos */
+/* Con 3 botones en el encabezado del celular (Simple, Avisos, Compartir), un poco más juntos */
 @media (max-width:420px){
     .headerAcciones .btn-header{
         min-width:44px;
@@ -40,8 +40,8 @@
     }
 }
 
-/* Celulares muy angostos: no entra el título junto a los 4 botones */
-@media (max-width:374px){
+/* Celulares muy angostos: no entra el título junto a los 3 botones */
+@media (max-width:349px){
     .titleContainer{
         display:none;
     }
