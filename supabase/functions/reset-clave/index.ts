@@ -22,8 +22,20 @@
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2";
 
 export const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-export const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
-const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+// Supabase pone las claves solo. Los proyectos nuevos usan las claves nuevas
+// (SUPABASE_PUBLISHABLE_KEYS / SUPABASE_SECRET_KEYS, en formato {"default": "sb_..."});
+// los viejos, SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY. Sirve con cualquiera de las dos.
+function claveSupabase(nueva: string, vieja: string): string {
+  try {
+    const claves = JSON.parse(Deno.env.get(nueva) ?? "{}") as Record<string, string>;
+    const valor = claves["default"] ?? Object.values(claves)[0];
+    if (typeof valor === "string" && valor) return valor;
+  } catch { /* formato inesperado: se usa la vieja */ }
+  return Deno.env.get(vieja) ?? "";
+}
+export const ANON_KEY = claveSupabase("SUPABASE_PUBLISHABLE_KEYS", "SUPABASE_ANON_KEY");
+const SERVICE_KEY = claveSupabase("SUPABASE_SECRET_KEYS", "SUPABASE_SERVICE_ROLE_KEY");
 
 // Cliente con la clave de servicio: SOLO dentro del servidor, nunca en la app
 export function clienteServicio(): SupabaseClient {

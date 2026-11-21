@@ -65,7 +65,7 @@ export function telefonoValido(t: unknown): t is string {
 // cliente de dos distribuidoras, con claves distintas.
 // No es un email real (no recibe mails): el email real está en la tabla clientes.
 export function emailInterno(telefono: string, slug: string): string {
-  return `${telefono.replace("+", "")}@${slug}.clientes.dosystem.com.ar`;
+  return `${telefono.replace("+", "")}@${slug}.clientes.dosysapp.com.ar`;
 }
 
 export function claveValida(c: unknown): c is string {

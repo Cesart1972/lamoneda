@@ -60,22 +60,30 @@ select id, 'UID-DE-LA-MONEDA', 'César', '{dueno}' from nueva;
 Más adelante, si alguien más cobra, se lo da de alta como `cobrador` en `plataforma_miembros`
 y se le asignan sus distribuidoras en `cobrador_empresas`. Hoy cobrás vos como dueño de la plataforma.
 
-3. La carga de los productos (`importar_productos`) se hace desde el panel cuando esté listo,
-   o se prepara un archivo SQL a partir de `products-data.js`.
+## 2b. Carga inicial de productos (una sola vez por distribuidora)
+
+1. **SQL Editor** → **New query** → pegá `carga/carga_inicial_la_moneda.sql` completo → **Run**.
+   Si aparece el aviso de "destructive operations", confirmá.
+2. Tiene que mostrar una fila `resultado` con los números (productos nuevos, grupos, categorías).
+3. Si se corre de nuevo, se frena con `la_moneda_ya_tiene_productos` y no toca nada.
+
+Para otra distribuidora: `node carga/generar_carga.js ruta/products-data.js slug "Nombre"`
+genera su archivo (necesita su empresa y su dueño ya dados de alta).
+Después de la carga inicial, los cambios de productos se hacen desde el panel.
 
 ## 3. Mails (Resend) para recuperar la clave
 
-Los mails salen del dominio del producto **Dosys** (`dosystem.com.ar`), no del de cada distribuidora.
-Cada mail lleva como remitente el nombre de la distribuidora: "La Moneda <avisos@mail.dosystem.com.ar>".
+Los mails salen del dominio del producto **Dosys** (`dosysapp.com.ar`), no del de cada distribuidora.
+Cada mail lleva como remitente el nombre de la distribuidora: "La Moneda <avisos@mail.dosysapp.com.ar>".
 Así sirve para todas las distribuidoras sin tocar nada.
 
-1. Registrá `dosystem.com.ar` en [NIC Argentina](https://nic.ar) y delegalo a un DNS
+1. Registrá `dosysapp.com.ar` en [NIC Argentina](https://nic.ar) y delegalo a un DNS
    (por ejemplo Netlify DNS, como `lamoneda.com.ar`, o Cloudflare, que es gratis).
 2. La cuenta de Resend va **a nombre de Ces.Art** (es de la plataforma): creala en [resend.com](https://resend.com)
    (gratis: 3000 mails por mes, 100 por día, hasta 3 dominios).
-3. **Domains** → **Add domain** → `mail.dosystem.com.ar` (un subdominio: Resend lo recomienda para que la
+3. **Domains** → **Add domain** → `mail.dosysapp.com.ar` (un subdominio: Resend lo recomienda para que la
    reputación de los envíos no afecte al dominio principal). Resend te muestra unos registros DNS (TXT y MX).
-4. Cargá esos registros tal cual en el DNS de `dosystem.com.ar` y esperá a que Resend lo muestre como **Verified**
+4. Cargá esos registros tal cual en el DNS de `dosysapp.com.ar` y esperá a que Resend lo muestre como **Verified**
    (puede tardar unas horas).
 5. **API Keys** → **Create API key** (permiso "Sending access"). Copiala: se ve una sola vez.
 
@@ -86,18 +94,20 @@ Mientras esto no esté, todo lo demás funciona; solo no anda "recuperar la clav
 
 En Supabase: menú **Edge Functions** → **Deploy a new function** → **Via Editor**.
 
-1. Nombre `registro-cliente` → borrá el ejemplo, pegá `functions/registro-cliente/index.ts` → **Deploy**.
-2. Nombre `reset-clave` → pegá `functions/reset-clave/index.ts` → **Deploy**.
+1. Nombre `registro-cliente` → **borrá todo el ejemplo que trae Supabase** (las 26 líneas), pegá
+   `functions/registro-cliente/index.ts` completo → **Deploy**.
+2. Nombre `reset-clave` → igual: borrá el ejemplo, pegá `functions/reset-clave/index.ts` → **Deploy**.
 3. En cada función → **Details** (o Settings) → **desactivá "Enforce JWT verification"**
    (la app las llama antes de que el cliente tenga sesión; las funciones controlan todo adentro).
 4. **Edge Functions** → **Secrets** → agregá:
    - `RESEND_API_KEY` = la clave de Resend
-   - `MAIL_REMITENTE` = `avisos@mail.dosystem.com.ar`
+   - `MAIL_REMITENTE` = `avisos@mail.dosysapp.com.ar`
 
-   (Las claves de Supabase `SUPABASE_URL`, `SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY` ya están cargadas solas.)
+   (Las claves de Supabase ya están cargadas solas: las funciones usan las nuevas `SUPABASE_PUBLISHABLE_KEYS` /
+   `SUPABASE_SECRET_KEYS` o, en proyectos viejos, `SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY`.)
 
 **Primera prueba:** cuando las funciones estén cargadas, avisame y las probamos juntos con un cliente de prueba.
-Si Supabase rechazara el formato del usuario interno de los clientes (`5492346…@la-moneda.clientes.dosystem.com.ar`),
+Si Supabase rechazara el formato del usuario interno de los clientes (`5492346…@la-moneda.clientes.dosysapp.com.ar`),
 se cambia en una sola línea (`emailInterno`).
 
 ## Reglas para cambios futuros

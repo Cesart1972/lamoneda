@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prueba de cuentas</title>
+<style>
+  :root { --fondo: #f5f4f0; --tarjeta: #fff; --texto: #1d1d1b; --suave: #6b6a66; --borde: #dcdad3;
+          --ok: #1f7a3a; --mal: #b3261e; --acento: #e8641b; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --fondo: #161614; --tarjeta: #22221f; --texto: #f2f1ed; --suave: #a5a39d;
+            --borde: #3a3934; --ok: #6fd28d; --mal: #ff8a80; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 16px; background: var(--fondo); color: var(--texto);
+         font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 640px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 8px 0 4px; }
+  .nota { color: var(--suave); margin: 0 0 16px; }
+  section { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px;
+            padding: 16px; margin-bottom: 14px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  h2 b { color: var(--acento); }
+  label { display: block; font-size: .85rem; color: var(--suave); margin: 8px 0 3px; }
+  input, select { width: 100%; padding: 9px 10px; border: 1px solid var(--borde); border-radius: 8px;
+                  background: var(--fondo); color: var(--texto); font: inherit; }
+  .fila { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 520px) { .fila { grid-template-columns: 1fr; } }
+  button { margin-top: 12px; padding: 10px 16px; border: 0; border-radius: 8px; background: var(--acento);
+           color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+  pre { white-space: pre-wrap; word-break: break-word; margin: 10px 0 0; padding: 10px; border-radius: 8px;
+        background: var(--fondo); font-size: .82rem; min-height: 1.5em; }
+  .ok { color: var(--ok); } .mal { color: var(--mal); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Prueba de cuentas · Dosys</h1>
+  <p class="nota">Página solo para probar las funciones <code>registro-cliente</code> y <code>reset-clave</code>.
+    No se publica: se abre desde la computadora. Usá datos de prueba y tu email real.</p>
+
+  <section>
+    <h2><b>0.</b> Conexión con Supabase</h2>
+    <label>Project URL (Settings → Data API)</label>
+    <input id="url" placeholder="https://xxxxxxxx.supabase.co">
+    <label>Publishable key (Settings → API Keys, empieza con sb_publishable_)</label>
+    <input id="clave_pub" placeholder="sb_publishable_...">
+    <label>Slug de la distribuidora</label>
+    <input id="slug" value="la-moneda">
+  </section>
+
+  <section>
+    <h2><b>1.</b> Crear cuenta (registro-cliente)</h2>
+    <div class="fila">
+      <div><label>Nombre</label><input id="r_nombre" value="Cliente de Prueba"></div>
+      <div><label>Celular (formato +549…)</label><input id="r_tel" value="+5492346000001"></div>
+    </div>
+    <div class="fila">
+      <div><label>Email (uno tuyo, para recibir el código)</label><input id="r_email" type="email"></div>
+      <div><label>Clave (mínimo 8)</label><input id="r_clave" value="prueba123"></div>
+    </div>
+    <label>Perfil</label>
+    <select id="r_perfil"><option value="hogar">Hogar</option><option value="negocio">Negocio</option></select>
+    <button onclick="registrar()">Crear cuenta</button>
+    <pre id="s1"></pre>
+  </section>
+
+  <section>
+    <h2><b>2.</b> Entrar con celular y clave</h2>
+    <div class="fila">
+      <div><label>Celular</label><input id="l_tel" value="+5492346000001"></div>
+      <div><label>Clave</label><input id="l_clave" value="prueba123"></div>
+    </div>
+    <button onclick="entrar()">Entrar</button>
+    <pre id="s2"></pre>
+  </section>
+
+  <section>
+    <h2><b>3.</b> Olvidé mi clave: pedir el código por email</h2>
+    <label>Celular</label><input id="p_tel" value="+5492346000001">
+    <button onclick="pedirCodigo()">Mandar código</button>
+    <pre id="s3"></pre>
+  </section>
+
+  <section>
+    <h2><b>4.</b> Poner clave nueva con el código</h2>
+    <div class="fila">
+      <div><label>Código del mail</label><input id="c_codigo" placeholder="ABC123"></div>
+      <div><label>Clave nueva</label><input id="c_clave" value="nueva1234"></div>
+    </div>
+    <label>Celular</label><input id="c_tel" value="+5492346000001">
+    <button onclick="confirmarCodigo()">Cambiar clave</button>
+    <pre id="s4"></pre>
+  </section>
+</main>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  // Recordar URL, clave pública y email entre pruebas (solo en esta computadora)
+  for (const id of ["url", "clave_pub", "slug", "r_email"]) {
+    try { const v = localStorage.getItem("prueba_" + id); if (v) $(id).value = v; } catch {}
+    $(id).addEventListener("change", () => { try { localStorage.setItem("prueba_" + id, $(id).value.trim()); } catch {} });
+  }
+
+  function base() { return $("url").value.trim().replace(/\/+$/, ""); }
+  function encabezados() {
+    const k = $("clave_pub").value.trim();
+    return { "Content-Type": "application/json", apikey: k, Authorization: "Bearer " + k };
+  }
+  function mostrar(id, ok, datos) {
+    const el = $(id);
+    el.className = ok ? "ok" : "mal";
+    el.textContent = (ok ? "✔ " : "✖ ") + JSON.stringify(datos, null, 2);
+  }
+  async function funcion(nombre, cuerpo) {
+    const r = await fetch(base() + "/functions/v1/" + nombre, {
+      method: "POST", headers: encabezados(), body: JSON.stringify(cuerpo),
+    });
+    let datos; try { datos = await r.json(); } catch { datos = { estado_http: r.status, texto: await r.text() }; }
+    return { ok: r.ok && datos.ok !== false, datos };
+  }
+  // Mismo usuario interno que usan las funciones (emailInterno)
+  function emailInterno(tel) { return tel.replace("+", "") + "@" + $("slug").value.trim() + ".clientes.dosysapp.com.ar"; }
+
+  async function registrar() {
+    $("s1").textContent = "…";
+    try {
+      const { ok, datos } = await funcion("registro-cliente", {
+        slug: $("slug").value.trim(), nombre: $("r_nombre").value, telefono: $("r_tel").value.trim(),
+        clave: $("r_clave").value, perfil: $("r_perfil").value, email: $("r_email").value.trim(),
+        acepta_privacidad: true,
+      });
+      if (datos.sesion) datos.sesion = { conectado: true, usuario: datos.sesion.user_id };
+      mostrar("s1", ok, datos);
+    } catch (e) { mostrar("s1", false, { error: String(e) }); }
+  }
+
+  async function entrar() {
+    $("s2").textContent = "…";
+    try {
+      const r = await fetch(base() + "/auth/v1/token?grant_type=password", {
+        method: "POST", headers: encabezados(),
+        body: JSON.stringify({ email: emailInterno($("l_tel").value.trim()), password: $("l_clave").value }),
+      });
+      const d = await r.json();
+      mostrar("s2", r.ok, r.ok ? { conectado: true, usuario: d.user && d.user.id } : d);
+    } catch (e) { mostrar("s2", false, { error: String(e) }); }
+  }
+
+  async function pedirCodigo() {
+    $("s3").textContent = "…";
+    try {
+      const { ok, datos } = await funcion("reset-clave", {
+        accion: "pedir", slug: $("slug").value.trim(), telefono: $("p_tel").value.trim(),
+      });
+      mostrar("s3", ok, datos);
+    } catch (e) { mostrar("s3", false, { error: String(e) }); }
+  }
+
+  async function confirmarCodigo() {
+    $("s4").textContent = "…";
+    try {
+      const { ok, datos } = await funcion("reset-clave", {
+        accion: "confirmar", slug: $("slug").value.trim(), telefono: $("c_tel").value.trim(),
+        codigo: $("c_codigo").value.trim(), clave_nueva: $("c_clave").value,
+      });
+      if (datos.sesion) datos.sesion = { conectado: true, usuario: datos.sesion.user_id };
+      mostrar("s4", ok, datos);
+    } catch (e) { mostrar("s4", false, { error: String(e) }); }
+  }
+</script>
+</body>
+</html>
