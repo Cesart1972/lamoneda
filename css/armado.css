@@ -133,6 +133,31 @@
     display:none;
 }
 
+/* De dónde salen los precios (ticket con código, v9.8) */
+.armadoPrecios{
+    margin:0 0 8px;
+    padding:8px 12px;
+    border-radius:10px;
+    font-size:.85rem;
+    font-weight:700;
+    line-height:1.35;
+}
+
+.armadoPrecios.pedido{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.armadoPrecios.modificado,
+.armadoPrecios.viejo{
+    background:#fff1f2;
+    color:#be123c;
+}
+
+.armadoDelPedido{
+    color:#166534;
+}
+
 .armadoNoReconocidas{
     display:grid;
     gap:4px;

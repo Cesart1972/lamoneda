@@ -2368,6 +2368,43 @@ function updateCheckoutUI() {
   document.dispatchEvent(new Event("carritocambio"));
 }
 
+// =========================================================
+// FIRMA DEL PEDIDO
+// Al final del ticket va "🧾 Pedido del 22/11/2026 · código K7Q2MA".
+// El código sale de la fecha y de cada renglón (nombre, unidades y
+// precio). Al armar el pedido (js/armado.js) se vuelve a calcular: si
+// coincide, los precios del ticket son los que tenía la app ese día y
+// se respetan aunque se arme al día siguiente. Si el mensaje se
+// modificó, no coincide y van los precios de hoy.
+// =========================================================
+
+function normalizarParaFirma(texto) {
+  return String(texto || "")
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// renglones: [{ nombre, unidades, precio }] en el orden del ticket
+function firmaPedido(fecha, renglones) {
+  const texto = `pedido|${fecha}|` + renglones
+    .map(r => `${normalizarParaFirma(r.nombre)}|${Number(r.unidades) || 0}|${Math.round(Number(r.precio) || 0)}`)
+    .join(";");
+  let hash = 2166136261;
+  for (let i = 0; i < texto.length; i++) {
+    hash ^= texto.charCodeAt(i);
+    hash = Math.imul(hash, 16777619) >>> 0;
+  }
+  return hash.toString(36).toUpperCase().padStart(6, "0").slice(-6);
+}
+
+// "2026-11-22" → "22/11/2026"
+function fechaLargaPedido(fecha) {
+  const [anio, mes, dia] = String(fecha).split("-");
+  return `${dia}/${mes}/${anio}`;
+}
+
 function updateWhatsAppLink() {
   const basePhone = CLIENTE.whatsapp.numero;
   // Los productos se listan en el mismo orden que el catálogo
@@ -2389,6 +2426,7 @@ function updateWhatsAppLink() {
   }
   let totalOrderPrice = 0;
   let totalItems = 0;
+  const renglonesFirma = [];
 
   let messageText = `${textoCliente(CLIENTE.mensajes.tituloPedido)}\n\n`;
   messageText += `${textoCliente(CLIENTE.mensajes.saludoPedido)}\n\n`;
@@ -2404,6 +2442,7 @@ function updateWhatsAppLink() {
 
       totalOrderPrice += subtotal;
       totalItems += quantity;
+      renglonesFirma.push({ nombre: product.name, unidades: quantity, precio: forma.precioUnitario });
 
       if (forma.oferta) {
         // "🔥 Oferta 27/10 · $699 (antes $899)"
@@ -2425,6 +2464,10 @@ function updateWhatsAppLink() {
   )} (${totalItems} ${
     totalItems === 1 ? "artículo" : "artículos"
   })*\n`;
+
+  // Fecha y código: al armarlo otro día se respetan los precios de hoy
+  const hoyPedido = fechaDeHoy();
+  messageText += `\n🧾 Pedido del ${fechaLargaPedido(hoyPedido)} · código ${firmaPedido(hoyPedido, renglonesFirma)}\n`;
 
   textoPedidoArmado = messageText;
   globalWhatsAppUrl =

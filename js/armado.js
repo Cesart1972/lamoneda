@@ -24,9 +24,16 @@
       pedido por terminado (queda todo listo para el próximo).
       "Descartar" tira un pedido sin mandarlo.
 
-   Precios: siempre los de la app (si el cliente editó el mensaje, no
-   importa). Si el ticket dice "🔥 Oferta 02/11" y ese día el producto
-   tenía esa oferta, se respeta aunque lo armes otro día.
+   Precios (v9.8): los tickets nuevos terminan con "🧾 Pedido del
+   22/11/2026 · código K7Q2MA" (ver firmaPedido en app.js).
+   - Código verificado y pedido de hace hasta armado.diasPrecioPedido días
+     (config, 3 por defecto): van los precios del ticket, que son los
+     que tenía la app el día del pedido (ej. pedido de anoche que armás
+     hoy). Si hoy el precio es otro se avisa en el renglón.
+   - Código que no coincide (el mensaje se modificó), pedido más viejo o
+     ticket sin código: van los precios de hoy de la app. Si el ticket
+     dice "🔥 Oferta 02/11" y ese día el producto tenía esa oferta, se
+     respeta igual.
 
    Sin servidor: el armado y la lista de compras se guardan en este
    celular. No descuenta stock para los demás clientes.
@@ -138,6 +145,20 @@ function guardarArmado() {
     return producto ? { producto, detalle: "" } : null;
   }
 
+  // "🧾 Pedido del 22/11/2026 · código K7Q2MA"
+  function leerFirma(texto) {
+    const datos = String(texto || "").match(/Pedido del\s+(\d{1,2})\/(\d{1,2})\/(\d{4})\D+?c[oó]digo\s+([A-Z0-9]+)/i);
+    if (!datos) return null;
+    const fecha = `${datos[3]}-${datos[2].padStart(2, "0")}-${datos[1].padStart(2, "0")}`;
+    return { fecha, codigo: datos[4].toUpperCase() };
+  }
+
+  function diasEntre(desde, hasta) {
+    const [a1, m1, d1] = desde.split("-").map(Number);
+    const [a2, m2, d2] = hasta.split("-").map(Number);
+    return Math.round((Date.UTC(a2, m2 - 1, d2) - Date.UTC(a1, m1 - 1, d1)) / 86400000);
+  }
+
   // ¿El producto tenía esa oferta ese día? ("02/11" → FechaOferta 2026-11-02)
   function ofertaDelDia(product, diaMes) {
     if (!diaMes) return null;
@@ -178,14 +199,17 @@ function guardarArmado() {
     return { producto: encontrado.producto, unidades, pasos, medidaTexto, diaOferta, precioTicket };
   }
 
-  // Precio y forma con los datos de la app (no los del mensaje)
-  function armarLinea(dato) {
+  // Precio y forma con los datos de la app. Con el ticket verificado
+  // (precioDelPedido) va el precio del ticket: el que tenía la app ese día.
+  function armarLinea(dato, precioDelPedido) {
     const product = dato.producto;
     const formas = formasDeCompra(product);
     const oferta = ofertaDelDia(product, dato.diaOferta);
+    const usarTicket = Boolean(precioDelPedido) && dato.precioTicket > 0;
 
     let forma = formas[0];
     if (!oferta && formas[1] && dato.unidades >= unidadesMinimas(formas[1])) forma = formas[1];
+    const precioHoy = oferta ? oferta.precio : forma.precioUnitario;
 
     // Medida para mostrar "1 bulto + 5 u.": la del ticket, o la de la forma
     let medida = null, porPaso = 1;
@@ -198,11 +222,16 @@ function guardarArmado() {
       porPaso = forma.unidadesPorPaso;
     }
 
+    let ofertaLinea = oferta || (forma.oferta && forma.oferta.tipo === "hoy" ? { fecha: fechaCortaOferta(forma.oferta.fecha), antes: forma.oferta.antes } : null);
+    if (usarTicket) ofertaLinea = dato.diaOferta ? { fecha: dato.diaOferta } : null;
+
     return {
       pedidas: dato.unidades,
       forma: forma.numero,
-      precio: oferta ? oferta.precio : forma.precioUnitario,
-      oferta: oferta || (forma.oferta && forma.oferta.tipo === "hoy" ? { fecha: fechaCortaOferta(forma.oferta.fecha), antes: forma.oferta.antes } : null),
+      precio: usarTicket ? dato.precioTicket : precioHoy,
+      precioHoy,
+      delPedido: usarTicket ? precioDelPedido : null,   // fecha corta "22/11"
+      oferta: ofertaLinea,
       precioTicket: dato.precioTicket,
       medida,
       porPaso,
@@ -215,6 +244,7 @@ function guardarArmado() {
   function cargarPedido(texto) {
     const lineas = {};
     const noReconocidas = [];
+    const datos = [];
     String(texto || "").split(/\r?\n/).forEach(renglon => {
       if (!/\s[×x]\s/.test(renglon)) return;
       const dato = leerRenglon(renglon);
@@ -223,13 +253,32 @@ function guardarArmado() {
         noReconocidas.push(dato.error);
         return;
       }
+      datos.push(dato);
+    });
+
+    // ¿Los precios del ticket son los de la app el día del pedido?
+    const firma = leerFirma(texto);
+    let precios = null;   // { fecha, estado: "pedido" | "modificado" | "viejo" }
+    if (firma) {
+      const codigo = firmaPedido(firma.fecha, datos.map(dato => ({
+        nombre: dato.producto.name, unidades: dato.unidades, precio: dato.precioTicket
+      })));
+      const dias = diasEntre(firma.fecha, fechaDeHoy());
+      const limite = Number(CLIENTE.armado && CLIENTE.armado.diasPrecioPedido) || 3;
+      if (codigo !== firma.codigo || noReconocidas.length) precios = { fecha: firma.fecha, estado: "modificado" };
+      else if (dias < 0 || dias > limite) precios = { fecha: firma.fecha, estado: "viejo", dias };
+      else precios = { fecha: firma.fecha, estado: "pedido", dias };
+    }
+    const precioDelPedido = precios && precios.estado === "pedido" ? fechaCortaOferta(precios.fecha) : null;
+
+    datos.forEach(dato => {
       const id = idProducto(dato.producto);
       if (lineas[id]) {
         // El mismo producto dos veces: se suman
         lineas[id].pedidas += dato.unidades;
         return;
       }
-      lineas[id] = armarLinea(dato);
+      lineas[id] = armarLinea(dato, precioDelPedido);
     });
 
     if (Object.keys(lineas).length === 0) return false;
@@ -241,7 +290,7 @@ function guardarArmado() {
       if (linea.forma === 2) cartOpcion[id] = 2;
     });
 
-    armado = { inicio: new Date().toISOString(), lineas, noReconocidas };
+    armado = { inicio: new Date().toISOString(), lineas, noReconocidas, precios };
     guardarArmado();
     despuesDeCambiar();
     return true;
@@ -809,6 +858,20 @@ function guardarArmado() {
     cuerpo.appendChild(nodo("p", "armadoResumen",
       `${ids.length} productos · ${hechos} hechos · cargado ${new Date(armado.inicio).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })}`));
 
+    // De dónde salen los precios (ticket con código)
+    const precios = armado.precios;
+    if (precios) {
+      const dia = fechaLargaPedido(precios.fecha);
+      const textos = {
+        pedido: precios.dias === 0
+          ? `🧾 Pedido de hoy (${dia}): van los precios del ticket.`
+          : `🧾 Pedido del ${dia}: van los precios de ese día (código verificado).`,
+        modificado: `⚠️ El código del ticket no coincide (el mensaje se modificó o hay renglones que no reconocí): van los precios de hoy.`,
+        viejo: `⚠️ Pedido del ${dia} (hace ${precios.dias} días): van los precios de hoy.`
+      };
+      cuerpo.appendChild(nodo("p", `armadoPrecios ${precios.estado}`, textos[precios.estado]));
+    }
+
     if (armado.noReconocidas && armado.noReconocidas.length) {
       const caja = nodo("div", "armadoNoReconocidas");
       caja.appendChild(nodo("strong", "", "No reconocí estos renglones (agregalos desde el catálogo):"));
@@ -963,7 +1026,13 @@ function guardarArmado() {
     const detalle = nodo("span", "armadoDetalle", `${pidio} · ${formatter.format(precio)} c/u`);
     if (linea.oferta) detalle.append(nodo("span", "armadoOferta", ` 🔥 Oferta ${linea.oferta.fecha}`));
     info.appendChild(detalle);
-    if (linea.precioTicket && Math.abs(linea.precioTicket - precio) >= 1) {
+    if (linea.delPedido) {
+      // Precio del día del pedido: se avisa si hoy es otro
+      if (typeof linea.precioHoy === "number" && Math.abs(linea.precioHoy - precio) >= 1) {
+        info.appendChild(nodo("span", "armadoTicket armadoDelPedido",
+          `Precio del ${linea.delPedido} · hoy ${formatter.format(linea.precioHoy)}`));
+      }
+    } else if (linea.precioTicket && Math.abs(linea.precioTicket - precio) >= 1) {
       info.appendChild(nodo("span", "armadoTicket", `El ticket decía ${formatter.format(linea.precioTicket)}: va el precio de la app`));
     }
 

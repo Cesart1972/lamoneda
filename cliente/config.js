@@ -164,7 +164,12 @@ const CLIENTE = {
     intro: "¡Hola! Tu pedido ya está listo:",
     faltantes: "Esta vez no teníamos:",
     transferencia: "Si querés pagar por transferencia, el alias es *{alias}* (a nombre de {titular}).",
-    cierre: "En un ratito te lo estamos llevando. Te confirmamos bien el horario."
+    cierre: "En un ratito te lo estamos llevando. Te confirmamos bien el horario.",
+
+    // Pedido con código verificado (🧾 al final del ticket): hasta cuántos
+    // días después se respetan los precios del día del pedido. Más viejo,
+    // van los precios de hoy.
+    diasPrecioPedido: 3
   },
 
 

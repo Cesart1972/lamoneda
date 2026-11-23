@@ -580,6 +580,15 @@ Aca vamos a darle funcionalidad al listado desplegable de candidatos. Al selecio
 - Con un botón menos, el título "Catálogo" ahora se ve desde 350 px de ancho (antes se escondía en celulares de menos de 375 px, como muchos Android de 360 px). Solo se esconde en pantallas de menos de 350 px.
 - Service worker v32.
 
+[9.8] 23-11-2026
+
+- Pedidos armados al día siguiente: se respetan los precios del día del pedido.
+  - El ticket que manda el cliente termina con "🧾 Pedido del 23/11/2026 · código GU8NCL". El código sale de la fecha y de cada renglón (nombre, unidades y precio): si alguien cambia un precio o una cantidad en el mensaje, deja de coincidir.
+  - Al pegar el pedido con "order": si el código coincide y el pedido es de hace hasta 3 días (config → armado.diasPrecioPedido), van los precios del ticket, que son los que tenía la app ese día (ofertas incluidas). Cartel verde "Pedido del 23/11/2026: van los precios de ese día (código verificado)" y, en cada producto que hoy vale otra cosa, "Precio del 23/11 · hoy $ X".
+  - Si el código no coincide (mensaje modificado o renglones que no reconoce), o el pedido es más viejo: cartel rojo y van los precios de hoy, como antes (la oferta "🔥 Oferta dd/mm" se sigue respetando si ese día existía).
+  - Tickets sin código (mandados con la versión anterior): como antes, precios de hoy.
+- Service worker v33.
+
 
 ---
 
